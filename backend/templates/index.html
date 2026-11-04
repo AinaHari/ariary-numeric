@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+<title>Ariary Numeric — Client web</title>
+<style>
+  :root { --primary:#1F3864; --accent:#2E7D32; --bg:#F5F7FA; --card:#fff; --danger:#C62828; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:#222; }
+  header { background:var(--primary); color:#fff; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  header .left { display:flex; align-items:center; gap:10px; }
+  header h1 { margin:0; font-size:18px; }
+  header .user { font-size:13px; opacity:.9; }
+  select.lang { padding:4px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.4); background:rgba(255,255,255,.12); color:#fff; font-size:12px; }
+  select.lang option { color:#222; }
+  nav { background:#fff; border-bottom:1px solid #ddd; padding:8px 12px; display:flex; flex-wrap:wrap; gap:6px; }
+  nav button { border:1px solid var(--primary); background:#fff; color:var(--primary); padding:6px 12px; border-radius:8px; cursor:pointer; font-size:13px; }
+  nav button.active { background:var(--primary); color:#fff; }
+  main { max-width:960px; margin:16px auto; padding:0 16px; }
+  .card { background:var(--card); border-radius:12px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,.08); margin-bottom:16px; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; }
+  .col { flex:1; min-width:240px; }
+  label { display:block; font-size:13px; margin:6px 0 2px; color:#444; }
+  input, select, textarea { width:100%; padding:8px; border:1px solid #ccc; border-radius:8px; font-size:14px; }
+  button.primary { background:var(--primary); color:#fff; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-size:14px; }
+  button.primary:hover { opacity:.9; }
+  button.ghost { background:#fff; color:var(--primary); border:1px solid var(--primary); padding:9px 16px; border-radius:8px; cursor:pointer; font-size:14px; }
+  button.danger { background:var(--danger); color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; }
+  .msg { padding:10px 12px; border-radius:8px; margin:8px 0; font-size:13px; }
+  .msg.ok { background:#E8F5E9; color:#1B5E20; }
+  .msg.err { background:#FFEBEE; color:#B71C1C; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { padding:8px; border-bottom:1px solid #eee; text-align:left; }
+  th { background:#f0f3f8; }
+  .hidden { display:none !important; }
+  .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; background:#e0e0e0; }
+  .badge.unread { background:#FFF3E0; color:#E65100; }
+  .title { font-size:16px; font-weight:600; color:var(--primary); margin:0 0 8px; }
+  .muted { color:#666; font-size:12px; }
+  .login-box { max-width:420px; margin:60px auto; }
+</style>
+</head>
+<body>
+<header>
+  <div class="left">
+    <h1>Ariary Numeric</h1>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <select class="lang" id="langSel" title="Language">
+      <option value="fr">FR — Français</option>
+      <option value="mg">MG — Malagasy</option>
+      <option value="en">EN — English</option>
+    </select>
+    <div class="user" id="userLabel">…</div>
+  </div>
+</header>
+<nav id="nav" class="hidden"></nav>
+<main id="main"></main>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+const API = window.location.origin + '/api/v1';
+let token = localStorage.getItem('token');
+let lang = localStorage.getItem('lang') || null;
+let user = JSON.parse(localStorage.getItem('user') || 'null');
+let currentView = null;
+let NOTIF_COUNT_UNREAD = null;
+
+// ============ i18n ============
+const I18N = {
+  fr: {
+    guest_try: 'Essayer en mode invité',
+    guest_ok: 'Compte invité créé (50 000 Ar de démonstration préchargés).',
+    login: 'Connexion',
+    login_btn: 'Se connecter',
+    login_email: 'E-mail',
+    login_pass: 'Mot de passe',
+    login_no_account: 'Pas de compte ?',
+    login_register_link: 'Créer un compte',
+    login_guest: 'Essayer en mode invité (démo, sans inscription)',
+    reg: 'Créer un compte',
+    reg_btn: "S'inscrire",
+    reg_already: 'Déjà un compte ? Se connecter',
+    reg_first: 'Prénom',
+    reg_last: 'Nom',
+    reg_phone: 'Téléphone',
+    reg_pass2: 'Confirmer',
+    reg_mismatch: 'Les mots de passe ne correspondent pas.',
+    nav_dashboard: 'Tableau de bord',
+    nav_wallet: 'Portefeuille',
+    nav_transfer: 'Envoyer',
+    nav_topup: 'Recharger (démo)',
+    nav_history: 'Historique',
+    nav_shipments: 'Expéditions',
+    nav_customs: 'Douane',
+    nav_blockchain: 'Blockchain',
+    nav_qr: 'QR Code',
+    nav_notifications: 'Notifications',
+    nav_profile: 'Profil',
+    landing_title: 'Ariary Numeric',
+    landing_sub: 'Portefeuille numérique de démonstration — aucun argent réel.',
+    landing_desc: 'Transferts internes, suivi logistique, transit/douane, empreintes blockchain de test, estimations de paiements internationaux.',
+    landing_cta_login: 'Se connecter',
+    landing_cta_register: 'Créer un compte',
+    landing_cta_guest: 'Essayer en mode invité',
+    feats_title: 'Fonctionnalités',
+    feats: [
+      'Portefeuille démo avec rechargement et transferts entre utilisateurs (idempotence)',
+      "Suivi d'expéditions avec chronologie d'événements",
+      'Dossiers douane avec checklist de documents et historique',
+      'Empreintes SHA-256 des opérations enregistrées (réseau de test)',
+      'Estimation de transferts internationaux (taux démo)',
+      'Notifications avec marquage lu / tout marquer',
+    ],
+    landing_warning: "Avertissement : portefeuille de démonstration, aucun argent réel. Transferts internationaux réels désactivés.",
+    dash_title: 'Portefeuille de démonstration',
+    dash_no_real: 'Aucun argent réel.',
+    dash_notifs: 'Notifications',
+    dash_unread: 'non lues',
+    dash_read: 'tout lu',
+    dash_recent: 'Dernières opérations',
+    table_ref: 'Référence',
+    table_amount: 'Montant',
+    table_type: 'Type',
+    table_status: 'Statut',
+    table_date: 'Date',
+    none: 'Aucune transaction.',
+    wallet_title: 'Portefeuille',
+    wallet_demo: 'Portefeuille de démonstration — aucun argent réel',
+    tr_title: 'Envoyer',
+    tr_to: 'E-mail du destinataire',
+    tr_amount: 'Montant (MGA)',
+    tr_desc: 'Description (optionnel)',
+    tr_btn: 'Confirmer le transfert',
+    tr_ok: 'Transfert effectué.',
+    tu_title: 'Recharger (démo)',
+    tu_label: 'Montant (MGA, max 1 000 000)',
+    tu_btn: 'Recharger',
+    tu_ok: 'Rechargement démo effectué.',
+    tu_note: 'Portefeuille de démonstration — aucun argent réel.',
+    hist_title: 'Historique',
+    tx_title: 'Détail transaction',
+    ship_title: 'Expéditions',
+    ship_new: 'Nouvelle expédition',
+    ship_none: "Aucune expédition.",
+    ship_name: 'Nom de la marchandise',
+    ship_origin: 'Origine',
+    ship_dest: 'Destination',
+    ship_mode: 'Mode',
+    ship_carrier: 'Transporteur',
+    ship_track: 'N° de suivi',
+    ship_create: 'Créer',
+    ship_ok: 'Expédition créée.',
+    ship_detail: 'Détail expédition',
+    ship_route: 'Trajet',
+    ship_status_lbl: 'Statut',
+    ship_mode_lbl: 'Mode',
+    ship_carrier_lbl: 'Transporteur',
+    ship_track_lbl: 'Suivi',
+    ship_timeline: 'Chronologie',
+    docs: 'Documents',
+    docs_title: 'Documents',
+    docs_upload: 'Téléverser un document',
+    docs_need: 'Fichier requis.',
+    docs_ok: 'Document ajouté.',
+    new_status: 'Nouveau statut',
+    location: 'Lieu',
+    add_event: 'Ajouter événement',
+    ev_ok: 'Événement ajouté.',
+    cust_title: 'Transit & douane',
+    cust_new: 'Nouveau dossier',
+    cust_none: 'Aucun dossier.',
+    cust_desc: 'Description de la marchandise',
+    cust_origin: "Pays d'origine",
+    cust_dest: 'Pays de destination',
+    cust_create: 'Créer',
+    cust_ok: 'Dossier créé.',
+    cust_detail: 'Dossier douane',
+    cust_req: 'Documents requis',
+    cust_hist: 'Historique',
+    cust_update: 'Mettre à jour',
+    cust_ok_upd: 'Mis à jour.',
+    cust_docs_uploaded: 'Documents téléversés',
+    bc_title: 'Blockchain (test)',
+    bc_network: 'Réseau',
+    bc_rpc: 'RPC configuré',
+    bc_status: 'Statut',
+    bc_note: 'Empreintes des opérations enregistrées (non confirmées sur chaîne tant que RPC non configuré).',
+    bc_reg_title: 'Enregistrer une empreinte',
+    bc_type: 'Type (ex: document)',
+    bc_data: 'Données à empreinter',
+    bc_save: 'Enregistrer',
+    bc_verify: 'Vérifier',
+    bc_records: 'Enregistrements',
+    bc_none: 'Aucun enregistrement.',
+    pay_title: 'Paiements (démo)',
+    pay_rates: 'Taux de change',
+    pay_no_rates: 'Aucun taux.',
+    pay_est_title: 'Estimation de transfert international',
+    pay_est_origin: "Pays d'origine",
+    pay_est_dest: 'Pays de destination',
+    pay_est_oc: 'Devise origine',
+    pay_est_dc: 'Devise destination',
+    pay_est_amount: 'Montant',
+    pay_est_btn: 'Estimer',
+    pay_est_fee: 'Frais estimés',
+    pay_est_receive: 'Montant estimé reçu',
+    pay_my: 'Mes estimations',
+    pay_none: 'Aucune estimation.',
+    pay_ref: 'Réf',
+    pay_rate: 'Taux',
+    my_ref: 'Ma référence / destinataire',
+    notif_title: 'Notifications',
+    notif_readall: 'Tout marquer comme lu',
+    notif_read: 'Marquer comme lu',
+    notif_none: 'Aucune notification.',
+    notif_read_lbl: 'lu',
+    notif_unread_lbl: 'non lu',
+    prof_title: 'Profil',
+    prof_save: 'Enregistrer',
+    prof_logout: 'Se déconnecter',
+    prof_saved: 'Profil mis à jour.',
+    prof_created: 'créé le',
+    prof_lang: 'Langue',
+    qr_title: 'QR Code de réception',
+    qr_code: 'Votre code',
+    qr_scan: 'Scanner / saisir un code',
+    qr_payload: 'Payload scanné',
+    qr_amount: 'Montant (MGA)',
+    qr_pay: 'Payer',
+    qr_ok: 'Paiement effectué.',
+    qr_need_to: 'Destinataire requis.',
+    q_amount_invalid: 'Montant invalide.',
+    to_required: 'Destinataire requis.',
+    err_unreachable: 'Serveur inaccessible.',
+    kind: { transfer: 'Transfert', topup: 'Rechargement', other: 'Opération' },
+    modes: { maritime: 'Maritime', aerien: 'Aérien', terrestre: 'Terrestre' },
+    ship_statuses: { preparation: 'Préparation', attente_depart: 'En attente de départ', transit: 'En transit', arrive_port: 'Arrivé', dedouanement: 'Dédouanement', libere: 'Libéré', livraison: 'En livraison', livre: 'Livré', retarde: 'Retardé', annule: 'Annulé' },
+    cust_statuses: { cree: 'Dossier créé', documents_a_fournir: 'Documents à fournir', verification: 'Documents en vérification', formalites: 'En attente de formalités', formalites_terminees: 'Formalités terminées', clos: 'Dossier clôturé' },
+  },
+  mg: {
+    guest_try: 'Andao amin\'ny kaonty mpitsidika',
+    guest_ok: 'Voasokatra ny kaonty mpitsidika (50 000 Ar — demo).',
+    login: 'Fidirana',
+    login_btn: 'Hiditra',
+    login_email: 'Mailaka',
+    login_pass: 'Tenimiafina',
+    login_no_account: 'Mbola tsy manana kaonty?',
+    login_register_link: 'Hisokatra kaonty',
+    login_guest: 'Andao ho mpitsidika (demo, tsy misy fisoratana hoatra)',
+    reg: 'Misoratra farahatro',
+    reg_btn: 'Manao fisoratana anarana',
+    reg_already: 'Efa manana kaonty? Hiditra',
+    reg_first: 'Fanampin\'anarana',
+    reg_last: 'Anarana',
+    reg_phone: 'Finday',
+    reg_pass2: 'Safoverina',
+    reg_mismatch: 'Tsy mitovy ny tenimiafina roa.',
+    nav_dashboard: 'Fanaraha-maso',
+    nav_wallet: 'Kitapo',
+    nav_transfer: 'Handefa vola',
+    nav_topup: 'Famenoana (demo)',
+    nav_history: 'Tantara',
+    nav_shipments: 'Fandefasana entana',
+    nav_customs: 'Fanadina entana',
+    nav_blockchain: 'Blockchain',
+    nav_qr: 'Kôdi QR',
+    nav_notifications: 'Fampahafantarana',
+    nav_profile: 'Mpampiasa',
+    landing_title: 'Ariary Numeric',
+    landing_sub: 'Kitapo elektronika santionany — tsy misy vola tena izy.',
+    landing_desc: 'Famindrana anaty, fandahazana entana, fanadina, tenant Blockchain demo, fanaraha-toetry ny fandoavam-bola iraisam-pirenena.',
+    landing_cta_login: 'Hiditra',
+    landing_cta_register: 'Hisokatra kaonty',
+    landing_cta_guest: 'Andao ho mpitsidika',
+    feats_title: 'Ny fahaiza-manao',
+    feats: [
+      'Kitapo demo: famenoana sy famindrana eo amin\'ny mpampiasa',
+      'Fandrahahana ny fandefasana entana, araka ny tantara sy ny efa-by',
+      'Fanadina entana: lisitra amin\'ireo taratasy sy tantara',
+      "Tenant SHA-256 an'ny fihandesana voatahiry (réseau demo)",
+      'Fanaraha-toetry ny fandoavam-bola iraisam-pirenana (tavy demo)',
+      'Fampahafantarana: marika fa voavaky ny tao-lahatra',
+    ],
+    landing_warning: 'Fanamarihana: kitapo demo, tsy misy vola tena izy. Ny famindrana iraisam-pirenena tena azy dia tsy mandeha.',
+    dash_title: 'Kitapo demo',
+    dash_no_real: 'tsy misy vola tena azy',
+    dash_notifs: 'Fampahafantarana',
+    dash_unread: 'tsy voavaky',
+    dash_read: 'voavaky rehetra',
+    dash_recent: 'Fihandesana farany',
+    table_ref: 'Rélique',
+    table_amount: 'Vola',
+    table_type: 'Karana',
+    table_status: 'Toe-bolana',
+    table_date: 'Andronyz',
+    none: 'Tsy misy fihandesana.',
+    wallet_title: 'Kitapo',
+    wallet_demo: 'Kitapo demo — tsy misy vola tena azy',
+    tr_title: 'Handefa vola',
+    tr_to: 'Mailakas destinefana',
+    tr_amount: 'Vola (MGA)',
+    tr_desc: 'Famaritana (tsy voatery)',
+    tr_btn: 'Haneho ilay famindrana',
+    tr_ok: 'Voasendina soa aman-tsara.',
+    tu_title: 'Famenoana (démo)',
+    tu_label: 'Vola (MGA, max 1 000 000)',
+    tu_btn: 'Fenoina',
+    tu_ok: 'Voafena soa aman-tsara.',
+    tu_note: 'Kitapo demo — tsy misy vola tena azy.',
+    hist_title: 'Tantara',
+    tx_title: 'Bangiaha fatorana',
+    ship_title: 'Fandefasana entana',
+    ship_new: 'Andefaso vaovaо',
+    ship_none: 'Tsia',
+    ship_name: 'Anarana entana',
+    ship_origin: 'Avy aho',
+    ship_dest: 'Ho aho',
+    ship_mode: 'Fomba',
+    ship_carrier: 'Mpitatitra',
+    ship_track: 'N° fanrahana',
+    ship_create: 'Tsofa',
+    ship_ok: 'Voata-geza ny fandefasana.',
+    ship_detail: 'Foin-daholaza',
+    ship_route: 'Lalan-kalefahana',
+    ship_status_lbl: 'Toe-bolana',
+    ship_mode_lbl: 'Fomba',
+    ship_carrier_lbl: 'Mpitatitra',
+    ship_track_lbl: 'Fanrahana',
+    ship_timeline: 'Fizarany',
+    docs: 'Taratasin-dehibe',
+    docs_title: 'Taratasin-dehibe',
+    docs_upload: 'Andefaso taratasy',
+    docs_need: 'Mila taratasy.',
+    docs_ok: 'Tafadroaka ny taratasy.',
+    new_status: 'Toe-bolana vaovaо',
+    location: 'Toebinа',
+    add_event: 'Ovay ny fizarana',
+    ev_ok: 'Voatahiry ny fizarana.',
+    cust_title: 'Fanadina entana',
+    cust_new: 'Dossier vaovaо',
+    cust_none: 'Tsia',
+    cust_desc: 'Famaritana ilay entana',
+    cust_origin: 'Firenena niaviany',
+    cust_dest: 'Firenena hanalefahana',
+    cust_create: 'Sokatra',
+    cust_ok: 'Voasokatra ny ampahany',
+    cust_detail: 'Dossier fanadina',
+    cust_req: 'Taratasy takina',
+    cust_hist: 'Tantara',
+    cust_update: 'Ovao aho',
+    cust_ok_upd: 'Voavaha soa aman-tsara.',
+    cust_docs_uploaded: 'Taratasy nalefa rahateo',
+    bc_title: 'Blockchain (demo)',
+    bc_network: 'Résole',
+    bc_rpc: 'Napetraka ny RPC',
+    bc_status: 'Toe-bolana',
+    bc_note: 'Taadraka teny akando (tsy ho fatorana raha tsy napetraka ny RPC).',
+    bc_reg_title: 'Mandrafitra tenant',
+    bc_type: 'Karana (oh: taratasy)',
+    bc_data: 'Fendratra',
+    bc_save: 'Tehirizo',
+    bc_verify: 'Hanamarina',
+    bc_records: 'Firaketana',
+    bc_none: 'Tsy misy firaketana.',
+    pay_title: 'Fandoavam-bola (demo)',
+    pay_rates: 'Tavin-boaliva',
+    pay_no_rates: 'Tsy misy tavin-boaliva.',
+    pay_est_title: 'Fanaraha-toetry ny famindrana iraisam-pirenena',
+    pay_est_origin: 'Firenena niaviany',
+    pay_est_dest: 'Firenena hotatahazana',
+    pay_est_oc: 'Vola niaviany',
+    pay_est_dc: 'Vola hotatahazana',
+    pay_est_amount: 'Vola',
+    pay_est_btn: 'Manao fanaraha-toetry ny vola',
+    pay_est_fee: 'Sarany',
+    pay_est_receive: 'Voahitsakiana am kaonty',
+    pay_my: 'Fanaraha-toetry ny aho',
+    pay_none: 'Tsy misy fanaraha-toetra.',
+    pay_ref: 'Rélique',
+    pay_rate: 'Tavy',
+    my_ref: 'Rélique hers-of-store',
+    notif_title: 'Fampahafantarana',
+    notif_readall: 'Ovay fa voavaky ny daholo',
+    notif_read: 'Fanekena mitetrery',
+    notif_none: 'Tsy misy fampahafantarana.',
+    notif_read_lbl: 'voavaky',
+    notif_unread_lbl: 'tsy voavaky',
+    prof_title: 'Mpampiasa',
+    prof_save: 'Tehirizo',
+    prof_logout: 'Hivoaka',
+    prof_saved: 'Voavoa ny mpampiasa.',
+    prof_created: 'Noferina',
+    prof_lang: 'Fiteny',
+    qr_title: 'Kôdi QR hanatram-bitra',
+    qr_code: 'Ny kodinao',
+    qr_scan: 'Manany / hamokatra kôdi',
+    qr_payload: 'Kôdi voavaky',
+    qr_amount: 'Vola (MGA)',
+    qr_pay: 'Handoa',
+    qr_ok: 'Vita soa aman-tsara ny fandoavana.',
+    qr_need_to: 'Mila destinefana.',
+    q_amount_invalid: 'Tsy mety ilay vola.',
+    to_required: 'Mila destinefana.',
+    err_unreachable: 'Tsy hamanatehozantra.',
+    kind: { transfer: 'Famindrana', topup: 'Famenoana', other: 'Fihandesana' },
+    modes: { maritime: 'An-drano', aerien: 'Mandehidina', terrestre: 'An-tanalana' },
+    ship_statuses: { preparation: 'Fiomanana', attente_depart: 'Miandry ny fiaviany', transit: 'Teny halevina', arrive_port: 'Tonga teto', dedouanement: 'Fanadina', libere: 'Nalalaka', livraison: 'Enya ho taolady', livre: 'Nify taolady', retarde: 'Voata-hena', annule: 'Voata-geza' },
+    cust_statuses: { cree: 'Voasokatra', documents_a_fournir: 'Tsy voalahatrany taratasy', verification: 'Tari-dahavolo', formalites: "Miandry famonoana", formalites_terminees: 'Voalahatrany ny farany', clos: 'Nofenoina ny ampahany' },
+  },
+  en: {
+    guest_try: 'Try as a guest',
+    guest_ok: 'Guest account created (50 000 Ar demo balance preloaded).',
+    login: 'Sign in',
+    login_btn: 'Sign in',
+    login_email: 'E-mail',
+    login_pass: 'Password',
+    login_no_account: 'No account yet?',
+    login_reg_link: 'Create an account',
+    login_guest: 'Try as guest (demo, no signup)',
+    reg: 'Create an account',
+    reg_btn: 'Sign up',
+    reg_already: 'Already an account? Sign in',
+    reg_first: 'First name',
+    reg_last: 'Last name',
+    reg_phone: 'Phone',
+    reg_pass2: 'Confirm',
+    reg_mismatch: 'Passwords do not match.',
+    nav_dashboard: 'Dashboard',
+    nav_wallet: 'Wallet',
+    nav_transfer: 'Send',
+    nav_topup: 'Top up (demo)',
+    nav_history: 'History',
+    nav_shipments: 'Shipments',
+    nav_customs: 'Customs',
+    nav_blockchain: 'Blockchain',
+    nav_qr: 'QR Code',
+    nav_notifications: 'Notifications',
+    nav_profile: 'Profile',
+    landing_title: 'Ariary Numeric',
+    landing_sub: 'Demo digital wallet — no real money.',
+    landing_desc: 'Internal transfers, shipment tracking, transit/customs, test blockchain fingerprints, international payment estimates.',
+    landing_cta_login: 'Sign in',
+    landing_cta_register: 'Create an account',
+    landing_cta_guest: 'Try as a guest',
+    feats_title: 'Features',
+    feats: [
+      'Demo wallet with top-up and user-to-user transfers (idempotent)',
+      'Shipment tracking with event timeline',
+      'Customs cases with document checklist and history',
+      'SHA-256 fingerprints of operations stored (test network)',
+      'International transfer estimates (demo rates)',
+      'Notifications with read / mark-all-read',
+    ],
+    landing_warning: 'Warning: demonstration wallet, no real money. Real international transfers disabled.',
+    dash_title: 'Demo wallet',
+    dash_no_real: 'No real money.',
+    dash_notifs: 'Notifications',
+    dash_unread: 'unread',
+    dash_read: 'all read',
+    dash_recent: 'Latest operations',
+    table_ref: 'Reference',
+    table_amount: 'Amount',
+    table_type: 'Type',
+    table_status: 'Status',
+    table_date: 'Date',
+    none: 'No transactions.',
+    wallet_title: 'Wallet',
+    wallet_demo: 'Demo wallet — no real money',
+    tr_title: 'Send',
+    tr_to: 'Recipient e-mail',
+    tr_amount: 'Amount (MGA)',
+    tr_desc: 'Description (optional)',
+    tr_btn: 'Confirm transfer',
+    tr_ok: 'Transfer completed.',
+    tu_title: 'Top up (demo)',
+    tu_label: 'Amount (MGA, max 1 000 000)',
+    tu_btn: 'Top up',
+    tu_ok: 'Demo top-up done.',
+    tu_note: 'Demo wallet — no real money.',
+    hist_title: 'History',
+    tx_title: 'Transaction detail',
+    ship_title: 'Shipments',
+    ship_new: 'New shipment',
+    ship_none: 'No shipments.',
+    ship_name: 'Goods name',
+    ship_origin: 'Origin',
+    ship_dest: 'Destination',
+    ship_mode: 'Mode',
+    ship_carrier: 'Carrier',
+    ship_track: 'Tracking number',
+    ship_create: 'Create',
+    ship_ok: 'Shipment created.',
+    ship_detail: 'Shipment detail',
+    ship_route: 'Route',
+    ship_status_lbl: 'Status',
+    ship_mode_lbl: 'Mode',
+    ship_carrier_lbl: 'Carrier',
+    ship_track_lbl: 'Tracking',
+    ship_timeline: 'Timeline',
+    docs: 'Documents',
+    docs_title: 'Documents',
+    docs_upload: 'Upload a document',
+    docs_need: 'File required.',
+    docs_ok: 'Document added.',
+    new_status: 'New status',
+    location: 'Location',
+    add_event: 'Add event',
+    ev_ok: 'Event added.',
+    cust_title: 'Transit & customs',
+    cust_new: 'New case',
+    cust_none: 'No case.',
+    cust_desc: 'Goods description',
+    cust_origin: 'Origin country',
+    cust_dest: 'Destination country',
+    cust_create: 'Create',
+    cust_ok: 'Case created.',
+    cust_detail: 'Customs case',
+    cust_req: 'Required documents',
+    cust_hist: 'History',
+    cust_update: 'Update',
+    cust_ok_upd: 'Updated.',
+    cust_docs_uploaded: 'Uploaded documents',
+    bc_title: 'Blockchain (test)',
+    bc_network: 'Network',
+    bc_rpc: 'RPC configured',
+    bc_status: 'Status',
+    bc_note: 'Operation fingerprints stored (not confirmed on-chain until RPC configured).',
+    bc_reg_title: 'Register a fingerprint',
+    bc_type: 'Type (e.g. document)',
+    bc_data: 'Data to fingerprint',
+    bc_save: 'Save',
+    bc_verify: 'Verify',
+    bc_records: 'Records',
+    bc_none: 'No records.',
+    pay_title: 'Payments (demo)',
+    pay_rates: 'Exchange rates',
+    pay_no_rates: 'No rates.',
+    pay_est_title: 'International transfer estimate',
+    pay_est_origin: 'Origin country',
+    pay_est_dest: 'Destination country',
+    pay_est_oc: 'Origin currency',
+    pay_est_dc: 'Destination currency',
+    pay_est_amount: 'Amount',
+    pay_est_btn: 'Estimate',
+    pay_est_fee: 'Estimated fees',
+    pay_est_receive: 'Estimated amount received',
+    pay_my: 'My estimates',
+    pay_none: 'No estimate.',
+    pay_ref: 'Ref',
+    pay_rate: 'Rate',
+    my_ref: 'My reference / recipient',
+    notif_title: 'Notifications',
+    notif_readall: 'Mark all as read',
+    notif_read: 'Mark as read',
+    notif_none: 'No notification.',
+    notif_read_lbl: 'read',
+    notif_unread_lbl: 'unread',
+    prof_title: 'Profile',
+    prof_save: 'Save',
+    prof_logout: 'Sign out',
+    prof_saved: 'Profile updated.',
+    prof_created: 'created on',
+    prof_lang: 'Language',
+    qr_title: 'Reception QR code',
+    qr_code: 'Your code',
+    qr_scan: 'Scan / enter a code',
+    qr_payload: 'Scanned payload',
+    qr_amount: 'Amount (MGA)',
+    qr_pay: 'Pay',
+    qr_ok: 'Payment done.',
+    qr_need_to: 'Recipient required.',
+    q_amount_invalid: 'Invalid amount.',
+    to_required: 'Recipient required.',
+    err_unreachable: 'Server unreachable.',
+    kind: { transfer: 'Transfer', topup: 'Top-up', other: 'Operation' },
+    modes: { maritime: 'Sea', aerien: 'Air', terrestre: 'Land' },
+    ship_statuses: { preparation: 'Preparation', attente_depart: 'Awaiting departure', transit: 'In transit', arrive_port: 'Arrived', dedouanement: 'Customs clearance', libere: 'Released', livraison: 'Out for delivery', livre: 'Delivered', retarde: 'Delayed', annule: 'Cancelled' },
+    cust_statuses: { cree: 'Case created', documents_a_fournir: 'Documents to provide', verification: 'Documents under review', formalites: 'Awaiting formalities', formalites_terminees: 'Formalities completed', clos: 'Case closed' },
+  },
+};
+
+function t(key) {
+  const L = I18N[lang] || I18N.fr;
+  if (Object.prototype.hasOwnProperty.call(L, key)) return L[key];
+  if (Object.prototype.hasOwnProperty.call(I18N.fr, key)) return I18N.fr[key];
+  return key;
+}
+function tmap(key, k, fallback) {
+  const L = I18N[lang] || I18N.fr;
+  const grp = (L && L[key]) || I18N.fr[key] || {};
+  return grp[k] !== undefined ? grp[k] : (fallback !== undefined ? fallback : k);
+}
+function setLang(l, syncServer=true) {
+  if (!I18N[l]) l = 'fr';
+  lang = l;
+  localStorage.setItem('lang', l);
+  document.getElementById('langSel').value = l;
+  document.documentElement.lang = l;
+  buildNav(); if (user) setUserLabel();;
+  if (currentView) view(currentView); else viewLanding();
+  if (user && syncServer) api('PATCH', '/accounts/me/', { preferred_language: l });
+  matchLang();
+}
+function matchLang() {
+  const sel = document.getElementById('langSel');
+  sel.onchange = () => setLang(sel.value);
+}
+
+function fmt(n) {
+  if (n === undefined || n === null) return '—';
+  const x = Number(n);
+  if (isNaN(x)) return String(n);
+  try { return x.toLocaleString(lang === 'en' ? 'en-GB' : 'fr-FR') + ' Ar'; } catch (e) { return x + ' Ar'; }
+}
+
+function headers() { const h = {'Content-Type':'application/json'}; if (token) h['Authorization'] = 'Token ' + token; return h; }
+async function api(method, path, body) {
+  try {
+    const r = await fetch(API + path, { method, headers: headers(), body: body ? JSON.stringify(body) : undefined });
+    let data = null;
+    try { data = await r.json(); } catch(e) { data = await r.text(); }
+    return { status: r.status, data };
+  } catch (e) { return { status: 0, data: t('err_unreachable') }; }
+}
+function msg(text, ok=true) {
+  const d = document.createElement('div');
+  d.className = 'msg ' + (ok ? 'ok' : 'err');
+  d.textContent = text;
+  return d;
+}
+function clearMain() { document.getElementById('main').innerHTML = ''; }
+function showNav(show) { document.getElementById('nav').classList.toggle('hidden', !show); }
+function setUserLabel() { document.getElementById('userLabel').textContent = user ? ((user.first_name || user.email) + ' — demo') : t('guest_try'); }
+
+async function downloadAuth(path, filename) {
+  try {
+    const r = await fetch(API + path, { headers: token ? {'Authorization':'Token '+token} : {} });
+    if (!r.ok) { alert(fmtErr({status:r.status,data:await r.text()})); return; }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = filename || 'document'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (e) { alert(t('err_unreachable')); }
+}
+  if (!res || res.status === 0) return t('err_unreachable');
+  const d = res.data;
+  if (typeof d === 'string') return d;
+  if (d && d.detail) return d.detail;
+  if (d && d.message) return d.message;
+  if (d && typeof d === 'object') {
+    return Object.entries(d).map(([k,v]) => Array.isArray(v) ? k+': '+v.join(', ') : k+': '+v).join(' | ');
+  }
+  return 'HTTP ' + res.status;
+}
+
+function paginateToItems(res) {
+  return (res && res.data && res.data.results) ? res.data.results : (Array.isArray(res && res.data) ? res.data : []);
+}
+
+// ---------- Landing ----------
+function viewLanding() {
+  clearMain();
+  showNav(false);
+  const main = document.getElementById('main');
+  const hero = document.createElement('div'); hero.className='card';
+  hero.style.textAlign='center';
+  hero.innerHTML = `
+    <h1 style="color:var(--primary);margin:0 0 8px">${t('landing_title')}</h1>
+    <p style="font-size:15px;color:#444;margin:0 0 16px">${t('landing_sub')}</p>
+    <p class="muted" style="margin-bottom:20px">${t('landing_desc')}</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="primary" id="goLogin">${t('landing_cta_login')}</button>
+      <button class="primary" id="goReg" style="background:#2E7D32">${t('landing_cta_register')}</button>
+      <button class="ghost" id="goGuest">${t('landing_cta_guest')}</button>
+    </div>`;
+  main.appendChild(hero);
+  const feats = document.createElement('div'); feats.className='card';
+  feats.innerHTML = `<h3 class="title">${t('feats_title')}</h3>
+    <ul style="margin:0;padding-left:20px;line-height:1.8">
+      ${t('feats').map(x => `<li>${x}</li>`).join('')}
+    </ul>
+    <p class="muted" style="margin-top:12px">${t('landing_warning')}</p>`;
+  main.appendChild(feats);
+  document.getElementById('goLogin').onclick = () => viewLogin();
+  document.getElementById('goReg').onclick = () => viewRegister();
+  document.getElementById('goGuest').onclick = () => guestLogin(hero);
+}
+
+async function guestLogin(container) {
+  const r = await api('POST', '/accounts/guest/', { language: lang });
+  if (r.status === 201 || r.status === 200) {
+    token = r.data.token; user = r.data.user;
+    localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user));
+    setUserLabel(); showNav(true); view('dashboard');
+  } else if (container) {
+    container.appendChild(msg(fmtErr(r), false));
+  }
+}
+
+// ---------- Auth ----------
+function viewLogin() {
+  clearMain();
+  currentView = 'login';
+  const box = document.createElement('div'); box.className='login-box card';
+  box.innerHTML = `
+    <h2 class="title">${t('login')}</h2>
+    <label>${t('login_email')}</label><input id="l_email" type="email" autocomplete="username">
+    <label>${t('login_pass')}</label><input id="l_pass" type="password" autocomplete="current-password">
+    <div style="margin-top:12px"><button class="primary" id="l_btn">${t('login_btn')}</button></div>
+    <div style="margin-top:10px"><button class="ghost" id="l_guest" style="width:100%">${t('login_guest')}</button></div>
+    <p class="muted" style="margin-top:12px">${t('login_no_account')} <a href="#" id="go_reg">${t('login_reg_link')}</a></p>`;
+  document.getElementById('main').appendChild(box);
+  document.getElementById('l_btn').onclick = async () => {
+    const res = await api('POST','/accounts/login/', { email: document.getElementById('l_email').value, password: document.getElementById('l_pass').value });
+    if (res.status === 200) { token = res.data.token; user = res.data.user; localStorage.setItem('token',token); localStorage.setItem('user',JSON.stringify(user)); if (user.preferred_language) setLang(user.preferred_language, false); setUserLabel(); showNav(true); view('dashboard'); }
+    else { box.appendChild(msg(fmtErr(res), false)); }
+  };
+  document.getElementById('l_guest').onclick = async () => { await guestLogin(box); };
+  document.getElementById('go_reg').onclick = (e) => { e.preventDefault(); viewRegister(); };
+}
+function viewRegister() {
+  clearMain();
+  currentView = 'register';
+  const box = document.createElement('div'); box.className='login-box card';
+  box.innerHTML = `
+    <h2 class="title">${t('reg')}</h2>
+    <label>${t('login_email')}</label><input id="r_email" type="email">
+    <label>${t('reg_first')}</label><input id="r_first">
+    <label>${t('reg_last')}</label><input id="r_last">
+    <label>${t('reg_phone')}</label><input id="r_phone">
+    <label>${t('login_pass')}</label><input id="r_pass" type="password">
+    <label>${t('reg_pass2')}</label><input id="r_pass2" type="password">
+    <div style="margin-top:12px"><button class="primary" id="r_btn">${t('reg_btn')}</button></div>
+    <p class="muted" style="margin-top:12px"><a href="#" id="go_log">${t('reg_already')}</a></p>`;
+  document.getElementById('main').appendChild(box);
+  document.getElementById('r_btn').onclick = async () => {
+    const p = document.getElementById('r_pass').value, p2 = document.getElementById('r_pass2').value;
+    if (p !== p2) { box.appendChild(msg(t('reg_mismatch'), false)); return; }
+    const res = await api('POST','/accounts/register/', { email: document.getElementById('r_email').value, password: p, password_confirm: p2, first_name: document.getElementById('r_first').value, last_name: document.getElementById('r_last').value, phone: document.getElementById('r_phone').value, country: 'Madagascar' });
+    if (res.status === 201 || res.status === 200) { token = res.data.token; user = res.data.user; localStorage.setItem('token',token); localStorage.setItem('user',JSON.stringify(user)); setUserLabel(); showNav(true); view('dashboard'); }
+    else { box.appendChild(msg(fmtErr(res), false)); }
+  };
+  document.getElementById('go_log').onclick = (e) => { e.preventDefault(); viewLogin(); };
+}
+
+// ---------- Dashboard ----------
+async function viewDashboard() {
+  clearMain();
+  currentView = 'dashboard';
+  const main = document.getElementById('main');
+  const w = await api('GET','/wallet/wallet/');
+  const n = await api('GET','/notifications/');
+  const items = paginateToItems(n);
+  const unread = items.filter(x=>!x.is_read).length;
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('dash_title')}</h3>
+    <p style="font-size:22px;font-weight:700;color:var(--primary)">${fmt(w.data && w.data.balance)} ${w.data ? w.data.currency : ''}</p>
+    <p class="muted">${t('dash_no_real')}</p>
+    <p>${t('dash_notifs')} : <span class="badge ${unread?'unread':''}">${unread} ${unread ? t('dash_unread') : t('dash_read')}</span></p>`;
+  main.appendChild(card);
+  // dernières opérations (aperçu)
+  const r = await api('GET','/wallet/transactions/');
+  const txs = paginateToItems(r).slice(0,5);
+  if (txs.length) {
+    const c2 = document.createElement('div'); c2.className='card';
+    c2.innerHTML = `<h3 class="title">${t('dash_recent')}</h3>`;
+    const tbl = document.createElement('table'); tbl.innerHTML = `<tr><th>${t('table_ref')}</th><th>${t('table_amount')}</th><th>${t('table_type')}</th><th>${t('table_status')}</th><th>${t('table_date')}</th></tr>`;
+    txs.forEach(x => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${String(x.reference).slice(0,8)}</td><td>${fmt(x.amount)}</td><td>${tmap('kind', x.kind, x.kind)}</td><td>${x.status}</td><td>${(x.created_at||'').slice(0,19).replace('T',' ')}</td>`;
+      tr.style.cursor='pointer'; tr.onclick = () => { localStorage.setItem('selected_tx', x.reference); view('txdetail'); };
+      tbl.appendChild(tr);
+    });
+    c2.appendChild(tbl); main.appendChild(c2);
+  }
+  const tiles = document.createElement('div'); tiles.className='row';
+  const btnlist = [
+    [t('nav_transfer'),'transfer'],[t('nav_topup'),'topup'],[t('nav_history'),'history'],
+    [t('nav_shipments'),'shipments'],[t('nav_customs'),'customs'],[t('nav_blockchain'),'blockchain'],
+    ['Paiements','payments'],[t('nav_notifications'),'notifications'],[t('nav_profile'),'profile'],
+  ];
+  btnlist.forEach(([l,v]) => {
+    const b = document.createElement('button'); b.className='primary'; b.style.flex='1'; b.style.minWidth='120px'; b.textContent=l;
+    b.onclick = () => view(v); tiles.appendChild(b);
+  });
+  main.appendChild(tiles);
+}
+
+// ---------- Wallet ----------
+async function viewWallet() {
+  clearMain();
+  currentView = 'wallet';
+  const main = document.getElementById('main');
+  const w = await api('GET','/wallet/wallet/');
+  const tx = await api('GET','/wallet/transactions/');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('wallet_title')}</h3><p style="font-size:22px;font-weight:700;color:var(--primary)">${fmt(w.data && w.data.balance)} ${w.data ? w.data.currency : ''}</p><p class="muted">${t('wallet_demo')}</p>`;
+  main.appendChild(card);
+  const c2 = document.createElement('div'); c2.className='card';
+  c2.innerHTML = `<h3 class="title">${t('dash_recent')}</h3>`;
+  const items = paginateToItems(tx);
+  if (!items.length) c2.appendChild(document.createTextNode(t('none')));
+  else {
+    const tbl = document.createElement('table'); tbl.innerHTML = `<tr><th>${t('table_ref')}</th><th>${t('table_amount')}</th><th>${t('table_type')}</th><th>${t('table_status')}</th><th>${t('table_date')}</th></tr>`;
+    items.slice(0,10).forEach(x => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${String(x.reference).slice(0,8)}</td><td>${fmt(x.amount)}</td><td>${tmap('kind', x.kind, x.kind)}</td><td>${x.status}</td><td>${(x.created_at||'').slice(0,19).replace('T',' ')}</td>`;
+      tr.style.cursor='pointer'; tr.onclick = () => { localStorage.setItem('selected_tx', x.reference); view('txdetail'); };
+      tbl.appendChild(tr);
+    });
+    c2.appendChild(tbl);
+  }
+  main.appendChild(c2);
+}
+
+// ---------- Transfer ----------
+async function viewTransfer() {
+  clearMain();
+  currentView = 'transfer';
+  const main = document.getElementById('main');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('tr_title')}</h3>
+    <label>${t('tr_to')}</label><input id="tr_to">
+    <label>${t('tr_amount')}</label><input id="tr_amt" type="number" min="1">
+    <label>${t('tr_desc')}</label><input id="tr_desc">
+    <div style="margin-top:12px"><button class="primary" id="tr_btn">${t('tr_btn')}</button></div>`;
+  main.appendChild(card);
+  document.getElementById('tr_btn').onclick = async () => {
+    const val = parseFloat(document.getElementById('tr_amt').value);
+    if (isNaN(val) || val <= 0) { card.appendChild(msg(t('q_amount_invalid'), false)); return; }
+    const to = document.getElementById('tr_to').value.trim();
+    if (!to) { card.appendChild(msg(t('to_required'), false)); return; }
+    const res = await api('POST','/wallet/transfer/', { recipient_email: to, amount: val, description: document.getElementById('tr_desc').value, idempotency_key: crypto.randomUUID() });
+    if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('tr_ok'))); setTimeout(()=>view('wallet'),900); }
+    else card.appendChild(msg(fmtErr(res), false));
+  };
+}
+
+// ---------- Topup ----------
+async function viewTopup() {
+  clearMain();
+  currentView = 'topup';
+  const main = document.getElementById('main');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('tu_title')}</h3>
+    <label>${t('tu_label')}</label><input id="tu_amt" type="number" value="100000" min="1">
+    <div style="margin-top:12px"><button class="primary" id="tu_btn">${t('tu_btn')}</button></div>
+    <p class="muted">${t('tu_note')}</p>`;
+  main.appendChild(card);
+  document.getElementById('tu_btn').onclick = async () => {
+    const val = parseFloat(document.getElementById('tu_amt').value);
+    if (isNaN(val) || val <= 0) { card.appendChild(msg(t('q_amount_invalid'), false)); return; }
+    const res = await api('POST','/wallet/topup-demo/', { amount: val });
+    if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('tu_ok'))); setTimeout(()=>view('wallet'),900); }
+    else card.appendChild(msg(fmtErr(res), false));
+  };
+}
+
+// ---------- History ----------
+async function viewHistory() {
+  clearMain();
+  currentView = 'history';
+  const main = document.getElementById('main');
+  const tx = await api('GET','/wallet/transactions/');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('hist_title')}</h3>`;
+  const items = paginateToItems(tx);
+  if (!items.length) card.appendChild(document.createTextNode(t('none')));
+  else {
+    const tbl = document.createElement('table'); tbl.innerHTML = `<tr><th>${t('table_ref')}</th><th>${t('table_amount')}</th><th>${t('table_type')}</th><th>${t('table_status')}</th><th>${t('table_date')}</th></tr>`;
+    items.forEach(x => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${String(x.reference).slice(0,8)}</td><td>${fmt(x.amount)}</td><td>${tmap('kind', x.kind, x.kind)}</td><td>${x.status}</td><td>${(x.created_at||'').slice(0,19).replace('T',' ')}</td>`;
+      tr.style.cursor='pointer'; tr.onclick = () => { localStorage.setItem('selected_tx', x.reference); view('txdetail'); };
+      tbl.appendChild(tr);
+    });
+    card.appendChild(tbl);
+  }
+  main.appendChild(card);
+}
+
+// ---------- Tx detail ----------
+async function viewTxdetail() {
+  clearMain();
+  currentView = 'txdetail';
+  const main = document.getElementById('main');
+  const ref = localStorage.getItem('selected_tx');
+  const r = await api('GET','/wallet/transactions/'+ref+'/');
+  const card = document.createElement('div'); card.className='card';
+  if (r.status === 200) {
+    const labels = {reference:t('table_ref'),sender_email:'De',recipient_email:'À',amount:t('table_amount'),fee:'Frais',currency:'Devise',kind:t('table_type'),status:t('table_status'),description:'Description',created_at:'Créé le',completed_at:'Terminé le'};
+    const d = r.data; const isOut = user && d.sender_email === user.email;
+    card.innerHTML = `<h3 class="title">${t('tx_title')}</h3>`;
+    Object.entries(d).forEach(([k,v]) => {
+      const shown = k === 'amount' ? fmt(v) : (k === 'kind' ? tmap('kind', v, v) : (v===null?'—':v));
+      const p = document.createElement('p'); p.style.margin='4px 0';
+      p.innerHTML = `<b>${labels[k]||k}</b> : ${shown}`;
+      card.appendChild(p);
+    });
+    const vb = document.createElement('button'); vb.className='ghost'; vb.style.marginTop='10px'; vb.textContent = t('bc_verify');
+    vb.onclick = async () => {
+      const res = await api('POST','/blockchain/verify/', { reference: ref });
+      card.appendChild(msg(res.status===200 && res.data.verified ? ('✅ ' + (res.data.note || '') + ' · ' + (res.data.data_hash||'').slice(0,16) + '…') : fmtErr(res), res.status===200 && res.data.verified));
+    };
+    card.appendChild(vb);
+    const back = document.createElement('button'); back.textContent='← ' + t('nav_history'); back.style.marginLeft='8px';
+    back.onclick = () => view('history');
+    card.appendChild(back);
+  } else card.appendChild(msg(fmtErr(r), false));
+  main.appendChild(card);
+}
+
+// ---------- Shipments ----------
+async function viewShipments() {
+  clearMain();
+  currentView = 'shipments';
+  const main = document.getElementById('main');
+  const r = await api('GET','/logistics/shipments/');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('ship_title')}</h3><div style="margin-bottom:8px"><button class="primary" id="newShip">${t('ship_new')}</button></div>`;
+  document.getElementById('main').appendChild(card);
+  document.getElementById('newShip').onclick = () => view('shipmentcreate');
+  const items = paginateToItems(r);
+  if (!items.length) card.appendChild(document.createTextNode(t('ship_none')));
+  else {
+    const tbl = document.createElement('table'); tbl.innerHTML = `<tr><th>${t('table_ref')}</th><th>${t('ship_name')}</th><th>${t('ship_route')}</th><th>${t('table_status')}</th></tr>`;
+    items.forEach(s => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${String(s.reference).slice(0,10)}</td><td>${s.name}</td><td>${s.origin} → ${s.destination}</td><td>${tmap('ship_statuses', s.status, s.status)}</td>`;
+      tr.style.cursor='pointer'; tr.onclick = () => { localStorage.setItem('selected_shipment', s.reference); view('shipmentdetail'); };
+      tbl.appendChild(tr);
+    });
+    card.appendChild(tbl);
+  }
+}
+async function viewShipmentcreate() {
+  clearMain();
+  currentView = 'shipmentcreate';
+  const main = document.getElementById('main');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('ship_new')}</h3>
+    <label>${t('ship_name')}</label><input id="sh_name">
+    <label>${t('ship_origin')}</label><input id="sh_origin">
+    <label>${t('ship_dest')}</label><input id="sh_dest">
+    <label>${t('ship_mode')}</label><select id="sh_mode"><option value="maritime">${t('modes').maritime}</option><option value="aerien">${t('modes').aerien}</option><option value="terrestre">${t('modes').terrestre}</option></select>
+    <label>${t('ship_carrier')}</label><input id="sh_carrier">
+    <label>${t('ship_track')}</label><input id="sh_track">
+    <div style="margin-top:12px"><button class="primary" id="sh_btn">${t('ship_create')}</button></div>`;
+  main.appendChild(card);
+  document.getElementById('sh_btn').onclick = async () => {
+    const payload = { name: document.getElementById('sh_name').value, origin: document.getElementById('sh_origin').value, destination: document.getElementById('sh_dest').value, mode: document.getElementById('sh_mode').value, carrier: document.getElementById('sh_carrier').value, tracking_number: document.getElementById('sh_track').value };
+    const res = await api('POST','/logistics/shipments/', payload);
+    if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('ship_ok'))); setTimeout(()=>view('shipments'),900); }
+    else card.appendChild(msg(fmtErr(res), false));
+  };
+}
+async function viewShipmentdetail() {
+  clearMain();
+  currentView = 'shipmentdetail';
+  const main = document.getElementById('main');
+  const ref = localStorage.getItem('selected_shipment');
+  const r = await api('GET','/logistics/shipments/'+ref+'/');
+  const card = document.createElement('div'); card.className='card';
+  if (r.status !== 200) { card.appendChild(msg(fmtErr(r), false)); main.appendChild(card); return; }
+  const d = r.data;
+  card.innerHTML = `<h3 class="title">${t('ship_detail')}</h3>
+    <p><b>${d.reference}</b> — ${d.name}</p><p>${t('ship_route')}: ${d.origin} → ${d.destination}</p><p>${t('ship_status_lbl')}: ${tmap('ship_statuses', d.status, d.status)} • ${t('ship_mode_lbl')}: ${tmap('modes', d.mode, d.mode)}</p>
+    <p class="muted">${t('ship_carrier_lbl')}: ${d.carrier||'—'} • ${t('ship_track_lbl')}: ${d.tracking_number||'—'}</p>
+    <h4>${t('ship_timeline')}</h4><div id="evlist"></div>
+    <div class="card"><label>${t('new_status')}</label><select id="ev_status">
+      ${Object.entries(t('ship_statuses')).map(([k,v]) => `<option value="${k}">${v}</option>`).join('')}
+    </select>
+    <label>${t('location')}</label><input id="ev_loc"><label>Description</label><input id="ev_desc">
+    <div style="margin-top:8px"><button class="primary" id="ev_btn">${t('add_event')}</button></div></div>`;
+  main.appendChild(card);
+  const evlist = document.getElementById('evlist');
+  (d.events||[]).forEach(ev => { const p=document.createElement('p'); p.style.margin='2px 0'; p.textContent = `${(ev.created_at||'').slice(0,19).replace('T',' ')} — ${tmap('ship_statuses', ev.status, ev.status)} — ${ev.location||''} ${ev.description||''}`; evlist.appendChild(p); });
+  // documents
+  const docsDiv = document.createElement('div'); docsDiv.style.marginTop='8px';
+  const docsTitle = document.createElement('h4'); docsTitle.textContent = t('docs_title'); docsDiv.appendChild(docsTitle);
+  (d.documents||[]).forEach(doc => { const p=document.createElement('p'); p.style.margin='2px 0'; const a=document.createElement('a'); a.href='#'; a.textContent=doc.name; a.onclick=(e)=>{e.preventDefault();downloadAuth('/logistics/shipments/'+ref+'/documents/'+doc.id+'/download/', doc.name);}; p.appendChild(a); p.appendChild(document.createTextNode(' ')); const sp=document.createElement('span'); sp.className='muted'; sp.textContent=(doc.created_at||'').slice(0,10); p.appendChild(sp); docsDiv.appendChild(p); });
+  const fileIn = document.createElement('input'); fileIn.type='file'; fileIn.style.marginTop='6px';
+  const upBtn = document.createElement('button'); upBtn.className='primary'; upBtn.textContent = t('docs_upload'); upBtn.style.marginTop='6px';
+  upBtn.onclick = async () => {
+    if (!fileIn.files || !fileIn.files[0]) { card.appendChild(msg(t('docs_need'), false)); return; }
+    const fd = new FormData(); fd.append('file', fileIn.files[0]);
+    try {
+      const rr = await fetch(API+'/logistics/shipments/'+ref+'/documents/', { method:'POST', headers: token?{'Authorization':'Token '+token}:{}, body: fd });
+      const data = await rr.json().catch(()=>({}));
+      if (rr.status === 201 || rr.status === 200) { card.appendChild(msg(t('docs_ok'))); setTimeout(()=>view('shipmentdetail'),800); }
+      else card.appendChild(msg(data.detail || JSON.stringify(data), false));
+    } catch(e) { card.appendChild(msg(t('err_unreachable'), false)); }
+  };
+  docsDiv.appendChild(fileIn); docsDiv.appendChild(document.createElement('br')); docsDiv.appendChild(upBtn);
+  card.appendChild(docsDiv);
+  document.getElementById('ev_btn').onclick = async () => {
+    const res = await api('POST','/logistics/shipments/'+ref+'/events/', { status: document.getElementById('ev_status').value, location: document.getElementById('ev_loc').value, description: document.getElementById('ev_desc').value });
+    if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('ev_ok'))); setTimeout(()=>view('shipmentdetail'),800); }
+    else card.appendChild(msg(fmtErr(res), false));
+  };
+}
+
+// ---------- Customs ----------
+async function viewCustoms() {
+  clearMain();
+  currentView = 'customs';
+  const main = document.getElementById('main');
+  const r = await api('GET','/customs/cases/');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('cust_title')}</h3><div style="margin-bottom:8px"><button class="primary" id="newCase">${t('cust_new')}</button></div>`;
+  main.appendChild(card);
+  document.getElementById('newCase').onclick = () => view('customscreate');
+  const items = paginateToItems(r);
+  if (!items.length) card.appendChild(document.createTextNode(t('cust_none')));
+  else {
+    const tbl = document.createElement('table'); tbl.innerHTML = `<tr><th>${t('table_ref')}</th><th>${t('cust_desc')}</th><th>${t('ship_route')}</th><th>${t('table_status')}</th></tr>`;
+    items.forEach(c => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${String(c.reference).slice(0,10)}</td><td>${c.description}</td><td>${c.origin_country} → ${c.destination_country}</td><td>${tmap('cust_statuses', c.status, c.status)}</td>`;
+      tr.style.cursor='pointer'; tr.onclick = () => { localStorage.setItem('selected_customs', c.reference); view('customsdetail'); };
+      tbl.appendChild(tr);
+    });
+    card.appendChild(tbl);
+  }
+}
+async function viewCustomscreate() {
+  clearMain();
+  currentView = 'customscreate';
+  const main = document.getElementById('main');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('cust_new')}</h3>
+    <label>${t('cust_desc')}</label><input id="cs_desc">
+    <label>${t('cust_origin')}</label><input id="cs_origin">
+    <label>${t('cust_dest')}</label><input id="cs_dest">
+    <label>${t('ship_mode')}</label><select id="cs_mode"><option value="maritime">${t('modes').maritime}</option><option value="aerien">${t('modes').aerien}</option><option value="terrestre">${t('modes').terrestre}</option></select>
+    <div style="margin-top:12px"><button class="primary" id="cs_btn">${t('cust_create')}</button></div>`;
+  main.appendChild(card);
+  document.getElementById('cs_btn').onclick = async () => {
+    const payload = { description: document.getElementById('cs_desc').value, origin_country: document.getElementById('cs_origin').value, destination_country: document.getElementById('cs_dest').value, mode: document.getElementById('cs_mode').value };
+    const res = await api('POST','/customs/cases/', payload);
+    if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('cust_ok'))); setTimeout(()=>view('customs'),900); }
+    else card.appendChild(msg(fmtErr(res), false));
+  };
+}
+async function viewCustomsdetail() {
+  clearMain();
+  currentView = 'customsdetail';
+  const main = document.getElementById('main');
+  const ref = localStorage.getItem('selected_customs');
+  const r = await api('GET','/customs/cases/'+ref+'/');
+  const card = document.createElement('div'); card.className='card';
+  if (r.status !== 200) { card.appendChild(msg(fmtErr(r), false)); main.appendChild(card); return; }
+  const d = r.data;
+  card.innerHTML = `<h3 class="title">${t('cust_detail')}</h3>
+    <p><b>${d.reference}</b></p><p>${d.description}</p><p>${d.origin_country} → ${d.destination_country}</p><p>${t('table_status')}: ${tmap('cust_statuses', d.status, d.status)}</p>
+    <h4>${t('cust_req')}</h4><div id="reqs"></div>
+    <h4>${t('cust_hist')}</h4><div id="evs"></div>
+    <div class="card"><label>${t('table_status')}</label><select id="cs_status">
+      ${Object.entries(t('cust_statuses')).map(([k,v]) => `<option value="${k}">${v}</option>`).join('')}
+    </select>
+    <label>Description</label><input id="cs_desc">
+    <div style="margin-top:8px"><button class="primary" id="cs_btn">${t('cust_update')}</button></div></div>`;
+  main.appendChild(card);
+  const reqs = document.getElementById('reqs');
+  (d.requirements||[]).forEach(rq => {
+    const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = rq.provided;
+    cb.onchange = async () => { await api('POST','/customs/cases/'+ref+'/requirements/'+rq.id+'/toggle/'); viewCustomsdetail(); };
+    const lbl = document.createElement('label'); lbl.style.display='block'; lbl.appendChild(cb); lbl.appendChild(document.createTextNode(' '+rq.name));
+    reqs.appendChild(lbl);
+  });
+  const evs = document.getElementById('evs');
+  (d.events||[]).forEach(ev => { const p=document.createElement('p'); p.style.margin='2px 0'; p.textContent = `${(ev.created_at||'').slice(0,19).replace('T',' ')} — ${tmap('cust_statuses', ev.status, ev.status)} ${ev.description||''}`; evs.appendChild(p); });
+  // documents
+  const cdocs = document.createElement('div'); cdocs.style.marginTop='8px';
+  const cdocsTitle = document.createElement('h4'); cdocsTitle.textContent = t('cust_docs_uploaded'); cdocs.appendChild(cdocsTitle);
+  (d.documents||[]).forEach(doc => { const p=document.createElement('p'); p.style.margin='2px 0'; const a=document.createElement('a'); a.href='#'; a.textContent=doc.name; a.onclick=(e)=>{e.preventDefault();downloadAuth('/customs/cases/'+ref+'/documents/'+doc.id+'/download/', doc.name);}; p.appendChild(a); p.appendChild(document.createTextNode(' ')); const sp=document.createElement('span'); sp.className='muted'; sp.textContent=(doc.created_at||'').slice(0,10); p.appendChild(sp); cdocs.appendChild(p); });
+  const cfileIn = document.createElement('input'); cfileIn.type='file'; cfileIn.style.marginTop='6px';
+  const cupBtn = document.createElement('button'); cupBtn.className='primary'; cupBtn.textContent = t('docs_upload'); cupBtn.style.marginTop='6px';
+  cupBtn.onclick = async () => {
+    if (!cfileIn.files || !cfileIn.files[0]) { card.appendChild(msg(t('docs_need'), false)); return; }
+    const fd = new FormData(); fd.append('file', cfileIn.files[0]);
+    try {
+      const rr = await fetch(API+'/customs/cases/'+ref+'/documents/', { method:'POST', headers: token?{'Authorization':'Token '+token}:{}, body: fd });
+      const data = await rr.json().catch(()=>({}));
+      if (rr.status === 201 || rr.status === 200) { card.appendChild(msg(t('docs_ok'))); setTimeout(()=>viewCustomsdetail(),800); }
+      else card.appendChild(msg(data.detail || JSON.stringify(data), false));
+    } catch(e) { card.appendChild(msg(t('err_unreachable'), false)); }
+  };
+  cdocs.appendChild(cfileIn); cdocs.appendChild(document.createElement('br')); cdocs.appendChild(cupBtn);
+  card.appendChild(cdocs);
+  document.getElementById('cs_btn').onclick = async () => {
+    const res = await api('POST','/customs/cases/'+ref+'/events/', { status: document.getElementById('cs_status').value, description: document.getElementById('cs_desc').value });
+    if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('cust_ok_upd'))); setTimeout(()=>viewCustomsdetail(),800); }
+    else card.appendChild(msg(fmtErr(res), false));
+  };
+}
+
+// ---------- Blockchain ----------
+async function viewBlockchain() {
+  clearMain();
+  currentView = 'blockchain';
+  const main = document.getElementById('main');
+  const info = await api('GET','/blockchain/info/');
+  const recs = await api('GET','/blockchain/records/');
+  const card = document.createElement('div'); card.className='card';
+  if (info.status === 200) {
+    const d = info.data;
+    card.innerHTML = `<h3 class="title">${t('bc_title')}</h3>
+      <p>${t('bc_network')}: ${d.network} (${d.chain_id})</p><p>${t('bc_rpc')}: ${d.rpc_configured}</p><p>${t('bc_status')}: ${d.message}</p>
+      <p class="muted">${t('bc_note')}</p>`;
+  } else card.appendChild(msg(fmtErr(info), false));
+  main.appendChild(card);
+  const c2 = document.createElement('div'); c2.className='card';
+  c2.innerHTML = `<h3 class="title">${t('bc_reg_title')}</h3>`;
+  const typeIn = document.createElement('input'); typeIn.placeholder = t('bc_type'); typeIn.value='document';
+  const payloadIn = document.createElement('input'); payloadIn.placeholder = t('bc_data');
+  const btnRec = document.createElement('button'); btnRec.className='primary'; btnRec.textContent = t('bc_save');
+  const btnVer = document.createElement('button'); btnVer.textContent = t('bc_verify'); btnVer.style.marginLeft='8px';
+  c2.appendChild(typeIn); c2.appendChild(payloadIn); c2.appendChild(document.createElement('br')); c2.appendChild(btnRec); c2.appendChild(btnVer);
+  const resDiv = document.createElement('div'); c2.appendChild(resDiv);
+  btnRec.onclick = async () => {
+    const res = await api('POST','/blockchain/records/', { record_type: typeIn.value || 'document', payload: payloadIn.value });
+    resDiv.innerHTML = ''; resDiv.appendChild(msg(res.status===201||res.status===200 ? (res.data.message||'OK') : fmtErr(res), res.status===201||res.status===200));
+    viewBlockchain();
+  };
+  btnVer.onclick = async () => {
+    const res = await api('POST','/blockchain/verify/', { payload: payloadIn.value });
+    resDiv.innerHTML = ''; resDiv.appendChild(msg(res.status===200 ? (t('bc_verify')+': '+res.data.verified+' ('+res.data.status+')') : fmtErr(res), res.status===200 && res.data.verified));
+  };
+  main.appendChild(c2);
+  const c3 = document.createElement('div'); c3.className='card';
+  c3.innerHTML = `<h3 class="title">${t('bc_records')}</h3>`;
+  const items = paginateToItems(recs);
+  if (!items.length) c3.appendChild(document.createTextNode(t('bc_none')));
+  else {
+    const tbl = document.createElement('table'); tbl.innerHTML = `<tr><th>ID</th><th>${t('table_type')}</th><th>Hash</th><th>${t('table_status')}</th></tr>`;
+    items.forEach(x => { const tr=document.createElement('tr'); tr.innerHTML=`<td>${x.id}</td><td>${x.record_type}</td><td>${String(x.data_hash).slice(0,16)}…</td><td>${x.status}</td>`; tbl.appendChild(tr); });
+    c3.appendChild(tbl);
+  }
+  main.appendChild(c3);
+}
+
+// ---------- Payments ----------
+async function viewPayments() {
+  clearMain();
+  currentView = 'payments';
+  const main = document.getElementById('main');
+  const info = await api('GET','/payments/mobile-money/info/');
+  const rates = await api('GET','/payments/rates/');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('pay_title')}</h3><p class="muted">${info && info.data ? info.data.message:'—'}</p><h4>${t('pay_rates')}</h4>`;
+  const rl = document.createElement('div');
+  const ritems = paginateToItems(rates);
+  if (!ritems.length) rl.textContent = t('pay_no_rates');
+  else ritems.forEach(rt => { const p=document.createElement('p'); p.style.margin='2px 0'; p.textContent = `${rt.base}/${rt.target} = ${rt.rate} (${rt.source})`; rl.appendChild(p); });
+  card.appendChild(rl);
+  main.appendChild(card);
+  const c2 = document.createElement('div'); c2.className='card';
+  c2.innerHTML = `<h3 class="title">${t('pay_est_title')}</h3>
+    <label>${t('pay_est_origin')}</label><input id="ic_o" value="Madagascar">
+    <label>${t('pay_est_dest')}</label><input id="ic_d" value="France">
+    <label>${t('pay_est_oc')}</label><input id="ic_oc" value="MGA">
+    <label>${t('pay_est_dc')}</label><input id="ic_dc" value="EUR">
+    <label>${t('pay_est_amount')}</label><input id="ic_amt" type="number" value="100000">
+    <div style="margin-top:8px"><button class="primary" id="ic_btn">${t('pay_est_btn')}</button></div>
+    <div id="ic_res" style="margin-top:8px"></div>`;
+  main.appendChild(c2);
+  document.getElementById('ic_btn').onclick = async () => {
+    const payload = { origin_country: document.getElementById('ic_o').value, destination_country: document.getElementById('ic_d').value, origin_currency: document.getElementById('ic_oc').value, destination_currency: document.getElementById('ic_dc').value, amount: parseFloat(document.getElementById('ic_amt').value) };
+    const res = await api('POST','/payments/international/estimate/', payload);
+    const div = document.getElementById('ic_res');
+    div.innerHTML = '';
+    if (res.status === 200 || res.status === 201) {
+      const d = res.data;
+      div.innerHTML = `<p><b>${t('pay_ref')}:</b> ${d.reference}</p><p>${t('pay_rate')}: ${d.rate} (${d.rate_source})</p><p>${t('pay_est_fee')}: ${fmt(d.estimated_fee)} ${d.origin_currency}</p><p>${t('pay_est_receive')}: ${d.estimated_receive} ${d.destination_currency}</p><p>${t('table_status')}: ${d.status}</p><p class="muted">${d.note||''}</p>`;
+    } else div.appendChild(msg(fmtErr(res), false));
+  };
+  // mes estimations
+  const intl = await api('GET','/payments/international/');
+  const c3 = document.createElement('div'); c3.className='card';
+  c3.innerHTML = `<h3 class="title">${t('pay_my')}</h3>`;
+  const iitems = paginateToItems(intl);
+  if (!iitems.length) c3.appendChild(document.createTextNode(t('pay_none')));
+  else {
+    const tbl = document.createElement('table'); tbl.innerHTML = `<tr><th>${t('pay_ref')}</th><th>${t('table_amount')}</th><th>${t('pay_est_receive')}</th><th>${t('table_status')}</th></tr>`;
+    iitems.forEach(x => { const tr=document.createElement('tr'); tr.innerHTML=`<td>${String(x.reference).slice(0,12)}</td><td>${fmt(x.amount)} ${x.origin_currency}</td><td>${x.estimated_receive} ${x.destination_currency}</td><td>${x.status}</td>`; tbl.appendChild(tr); });
+    c3.appendChild(tbl);
+  }
+  main.appendChild(c3);
+}
+
+// ---------- Notifications ----------
+async function viewNotifications() {
+  clearMain();
+  currentView = 'notifications';
+  const main = document.getElementById('main');
+  const r = await api('GET','/notifications/');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('notif_title')}</h3><div style="margin-bottom:8px"><button class="primary" id="readAll">${t('notif_readall')}</button></div>`;
+  main.appendChild(card);
+  document.getElementById('readAll').onclick = async () => { await api('POST','/notifications/read-all/'); viewNotifications(); };
+  const items = paginateToItems(r);
+  if (!items.length) card.appendChild(document.createTextNode(t('notif_none')));
+  else items.forEach(n => {
+    const div = document.createElement('div'); div.style.padding='8px'; div.style.borderBottom='1px solid #eee';
+    div.innerHTML = `<b>${n.title}</b> <span class="badge ${n.is_read?'':'unread'}">${n.is_read?t('notif_read_lbl'):t('notif_unread_lbl')}</span><br><span class="muted">${(n.created_at||'').slice(0,19).replace('T',' ')}</span><br>${n.message}`;
+    if (!n.is_read) {
+      const b = document.createElement('button'); b.textContent = t('notif_read'); b.style.marginTop='4px';
+      b.onclick = async () => { await api('POST','/notifications/'+n.id+'/read/'); viewNotifications(); };
+      div.appendChild(b);
+    }
+    card.appendChild(div);
+  });
+}
+
+// ---------- Profile ----------
+async function viewProfile() {
+  clearMain();
+  currentView = 'profile';
+  const main = document.getElementById('main');
+  const r = await api('GET','/accounts/me/');
+  const card = document.createElement('div'); card.className='card';
+  if (r.status !== 200) { card.appendChild(msg(fmtErr(r), false)); main.appendChild(card); return; }
+  const d = r.data;
+  card.innerHTML = `<h3 class="title">${t('prof_title')}</h3>
+    <p class="muted">${d.email} — ${t('prof_created')} ${(d.created_at||'').slice(0,10)}</p>
+    <label>${t('reg_first')}</label><input id="pf_first" value="${(d.first_name||'').replace('"','&quot;')}">
+    <label>${t('reg_last')}</label><input id="pf_last" value="${(d.last_name||'').replace('"','&quot;')}">
+    <label>${t('reg_phone')}</label><input id="pf_phone" value="${(d.phone||'').replace('"','&quot;')}">
+    <label>${t('cust_origin')}</label><input id="pf_country" value="${(d.country||'').replace('"','&quot;')}">
+    <label>${t('prof_lang')}</label><select id="pf_lang">
+      <option value="fr">Français</option><option value="mg">Malagasy</option><option value="en">English</option>
+    </select>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="primary" id="pf_save">${t('prof_save')}</button>
+      <button class="danger" id="pf_logout">${t('prof_logout')}</button>
+    </div>`;
+  main.appendChild(card);
+  document.getElementById('pf_lang').value = d.preferred_language || lang || 'fr';
+  document.getElementById('pf_save').onclick = async () => {
+    const payload = { first_name: document.getElementById('pf_first').value, last_name: document.getElementById('pf_last').value, phone: document.getElementById('pf_phone').value, country: document.getElementById('pf_country').value, preferred_language: document.getElementById('pf_lang').value };
+    const res = await api('PATCH','/accounts/me/', payload);
+    if (res.status === 200) { user = res.data; localStorage.setItem('user',JSON.stringify(user)); setUserLabel(); card.appendChild(msg(t('prof_saved'))); }
+    else card.appendChild(msg(fmtErr(res), false));
+  };
+  document.getElementById('pf_logout').onclick = async () => {
+    await api('POST','/accounts/logout/');
+    token = null; user = null; localStorage.removeItem('token'); localStorage.removeItem('user');
+    setUserLabel(); showNav(false); viewLogin();
+  };
+}
+
+// ---------- QR Code ----------
+async function viewQr() {
+  clearMain();
+  currentView = 'qr';
+  const main = document.getElementById('main');
+  const me = JSON.parse(localStorage.getItem('user') || '{}');
+  const email = me.email || '';
+  const payload = 'ariary://pay?to=' + email;
+  const card = document.createElement('div'); card.className='card'; card.style.textAlign='center';
+  card.innerHTML = `<h3 class="title">${t('qr_title')}</h3>
+    <p class="muted">${t('qr_code')} : ${email}</p>
+    <canvas id="qrCanvas" style="margin:12px auto;display:block"></canvas>
+    <p class="muted" style="word-break:break-all">${payload}</p>
+    <h4 style="margin-top:16px">${t('qr_scan')}</h4>
+    <label>${t('qr_payload')}</label><input id="qr_input">
+    <label>${t('qr_amount')}</label><input id="qr_amt" type="number" value="100">
+    <div style="margin-top:8px"><button class="primary" id="qr_pay">${t('qr_pay')}</button></div>`;
+  main.appendChild(card);
+  try { if (window.QRCode) QRCode.toCanvas(document.getElementById('qrCanvas'), payload, { width: 220 }); } catch(e) {}
+  document.getElementById('qr_pay').onclick = async () => {
+    const val = parseFloat(document.getElementById('qr_amt').value);
+    let to = document.getElementById('qr_input').value.trim();
+    if (to.includes('to=')) to = to.split('to=').pop();
+    if (!to) { card.appendChild(msg(t('qr_need_to'), false)); return; }
+    if (isNaN(val) || val <= 0) { card.appendChild(msg(t('q_amount_invalid'), false)); return; }
+    const res = await api('POST','/wallet/transfer/', { recipient_email: to, amount: val, description: 'Paiement QR', idempotency_key: crypto.randomUUID() });
+    if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('qr_ok'))); setTimeout(()=>view('wallet'),900); }
+    else card.appendChild(msg(fmtErr(res), false));
+  };
+}
+
+// ---------- Router ----------
+const views = { dashboard:viewDashboard, wallet:viewWallet, transfer:viewTransfer, topup:viewTopup, history:viewHistory, txdetail:viewTxdetail, shipments:viewShipments, shipmentcreate:viewShipmentcreate, shipmentdetail:viewShipmentdetail, customs:viewCustoms, customscreate:viewCustomscreate, customsdetail:viewCustomsdetail, blockchain:viewBlockchain, payments:viewPayments, notifications:viewNotifications, profile:viewProfile, qr:viewQr, landing:viewLanding, login:viewLogin, register:viewRegister };
+function view(name) {
+  currentView = name && views[name] ? name : 'dashboard';
+  if (views[currentView]) views[currentView]();
+  else viewDashboard();
+  document.querySelectorAll('#nav button').forEach(x => x.classList.toggle('active', x.dataset.view === currentView));
+}
+function buildNav() {
+  const nav = document.getElementById('nav');
+  nav.innerHTML = '';
+  const items = [
+    ['dashboard', t('nav_dashboard')],['wallet', t('nav_wallet')],['transfer', t('nav_transfer')],['topup', t('nav_topup')],
+    ['history', t('nav_history')],['shipments', t('nav_shipments')],['customs', t('nav_customs')],['blockchain', t('nav_blockchain')],
+    ['qr', t('nav_qr')],['notifications', t('nav_notifications')],['profile', t('nav_profile')],
+  ];
+  items.forEach(([v, label]) => {
+    const b = document.createElement('button');
+    b.dataset.view = v; b.textContent = label;
+    b.addEventListener('click', () => view(v));
+    nav.appendChild(b);
+  });
+  nav.querySelectorAll('button').forEach(x => x.classList.toggle('active', x.dataset.view === currentView));
+}
+
+// ---------- Boot ----------
+(function boot() {
+  if (!lang) lang = (user && user.preferred_language) || 'fr';
+  lang = I18N[lang] ? lang : 'fr';
+  document.getElementById('langSel').value = lang;
+  document.documentElement.lang = lang;
+  matchLang();
+  buildNav();
+  if (token && user) { setUserLabel(); showNav(true); view('dashboard'); }
+  else { setUserLabel(); showNav(false); viewLanding(); }
+})();
+</script>
+</body>
+</html>

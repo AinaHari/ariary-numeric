@@ -1,0 +1,22 @@
+# Core
+Django>=5.0,<6.0
+djangorestframework>=3.15
+django-cors-headers>=4.3
+python-dotenv>=1.0
+
+# Production server & static files
+gunicorn>=22.0
+whitenoise>=6.6
+
+# Database (PostgreSQL in production; SQLite is built into Python)
+psycopg2-binary>=2.9
+
+# Blockchain (optional, Sepolia testnet)
+web3>=6.0
+
+# QR codes / images
+qrcode>=7.4
+Pillow>=10.0
+
+# Mobile (Flet) — install only if building the Android app
+# flet>=0.21
