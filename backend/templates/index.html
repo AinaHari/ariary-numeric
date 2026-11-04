@@ -873,7 +873,7 @@ async function viewDashboard() {
   const n = await api('GET','/notifications/');
   const items = paginateToItems(n);
   const unread = items.filter(x=>!x.is_read).length;
-  const card = document.createElement('div'); card.className='stat';
+  const card = document.createElement('div'); card.className='stat-card';
   card.innerHTML = `<div style="background:rgba(255,255,255,.18);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px">
       <span>⚠️</span><span>Portefeuille de démonstration — aucun argent réel. Les crédits ajoutés ici ne sont pas des dépôts bancaires.</span>
     </div>
