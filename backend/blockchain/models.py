@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -13,6 +14,7 @@ class BlockchainRecord(models.Model):
         (STATUS_FAILED, "Échoué"),
     ]
 
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blockchain_records", null=True, blank=True)
     record_type = models.CharField(max_length=60)
     data_hash = models.CharField(max_length=128)
     network = models.CharField(max_length=60, default="sepolia")

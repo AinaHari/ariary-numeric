@@ -14,4 +14,5 @@ class InternationalTransferSerializer(serializers.ModelSerializer):
 class PaymentConnectorSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentConnector
-        fields = "__all__"
+        fields = ["id", "name", "kind", "is_active", "created_at"]
+        read_only_fields = fields

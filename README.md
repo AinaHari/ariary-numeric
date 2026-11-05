@@ -141,7 +141,18 @@ Base: `/api/v1/`
 ## Langues
 Interface web disponible en français, malgache (MG) et anglais, basculable en direct (préférence sauvegardée côté compte).
 
-## Mode invité
-`POST /api/v1/accounts/guest/` crée un compte de démonstration avec 50 000 MGA préchargés (aucun argent réel). Idéal pour tester sans inscription.
+## Sécurité (audit corrigé)
+- Enregistrements blockchain isolés par utilisateur (propriété `owner`)
+- Clés d'idempotence scopées au propriétaire du transfert
+- Configurations des connecteurs de paiement non exposées (champ `config` exclu de l'API)
+- Documents servis par endpoints authentifiés (pas d'accès public)
+- Validation `SECRET_KEY` en production (refuse de démarrer avec une clé faible)
+- Aucun compte admin avec mot de passe connu dans le dépôt
+
+## Blockchain (Sepolia)
+- Empreintes SHA-256 enregistrées localement + tentative d'enregistrement on-chain
+- Si `BLOCKCHAIN_RPC_URL`, `BLOCKCHAIN_CONTRACT_ADDRESS` et `BLOCKCHAIN_PRIVATE_KEY` sont configurés, une transaction réelle est envoyée au contrat `AriaryRegistry` sur Sepolia
+- Sans configuration, l'application reste fonctionnelle (mode démonstration)
+- Vérification on-chain possible via `POST /api/v1/blockchain/verify/`
 """ 
 path: /home/aina-ben/Desktop/ariary-numeric/README.md

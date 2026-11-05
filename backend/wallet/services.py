@@ -21,7 +21,8 @@ def fingerprint_transaction(tx):
         data_hash = sha256_hex(
             f"ariary|{tx.reference}|{tx.kind}|{tx.amount}|{tx.currency}"
         )
-        BlockchainRecord.objects.get_or_create(
+        rec, created = BlockchainRecord.objects.get_or_create(
+            owner=tx.sender if tx.sender_id else tx.recipient,
             data_hash=data_hash,
             defaults={
                 "record_type": "transaction",
@@ -36,6 +37,16 @@ def fingerprint_transaction(tx):
                 },
             },
         )
+        # Attempt on-chain recording
+        try:
+            from blockchain.views import record_on_chain
+            tx_hash = record_on_chain(data_hash)
+            if tx_hash:
+                rec.tx_hash = tx_hash
+                rec.status = BlockchainRecord.STATUS_PENDING
+                rec.save(update_fields=["tx_hash", "status"])
+        except Exception:
+            pass
     except Exception:
         # L'empreinte ne doit jamais bloquer la transaction elle-même.
         pass
@@ -65,7 +76,7 @@ def transfer_funds(sender, recipient_email, amount, description="", idempotency_
 
     # Chemin rapide (lecture seule) : le contrôle définitif a lieu dans la transaction.
     if idempotency_key:
-        existing = Transaction.objects.filter(idempotency_key=idempotency_key).first()
+        existing = Transaction.objects.filter(idempotency_key=idempotency_key, sender=sender).first()
         if existing:
             return existing
 
@@ -91,7 +102,7 @@ def transfer_funds(sender, recipient_email, amount, description="", idempotency_
 
             # idempotence: revérifié sous verrous avant toute écriture
             if idempotency_key:
-                existing = Transaction.objects.filter(idempotency_key=idempotency_key).first()
+                existing = Transaction.objects.filter(idempotency_key=idempotency_key, sender=sender).first()
                 if existing:
                     return existing
 
@@ -121,7 +132,7 @@ def transfer_funds(sender, recipient_email, amount, description="", idempotency_
     except IntegrityError:
         # Deux requêtes simultanées avec la même clé : la contrainte unique départage.
         if idempotency_key:
-            return Transaction.objects.filter(idempotency_key=idempotency_key).first()
+            return Transaction.objects.filter(idempotency_key=idempotency_key, sender=sender).first()
         raise
 
     record_audit(sender, "transfer.completed", "Transaction", tx.reference, {"amount": str(amount), "recipient": recipient.email}, ip)

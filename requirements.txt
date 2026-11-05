@@ -18,5 +18,6 @@ web3>=6.0
 qrcode>=7.4
 Pillow>=10.0
 
-# Mobile (Flet) — install only if building the Android app
-# flet>=0.21
+# Mobile (Flet) — required for the Android app
+flet>=0.21
+httpx>=0.27
