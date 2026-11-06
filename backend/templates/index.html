@@ -5,23 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
 <title>Ariary Numeric — Client web</title>
-<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Binance-inspired dark palette */
-  --bg: #000000;
-  --bg-2: #0A0A0A;
-  --bg-3: #111111;
-  --bg-4: #1A1A1A;
-  --card: #0D0D0D;
-  --card-hover: #1A1A1A;
-  --border: #2A2A2A;
-  --border-2: #3A3A3A;
+  --bg: #0B0E11;
+  --bg-2: #161A1E;
+  --bg-3: #1E2329;
+  --bg-4: #2B3139;
+  --card: #1E2329;
+  --card-hover: #2B3139;
+  --text: #EAECEF;
+  --text-2: #B7BDC6;
+  --muted: #848E9C;
+  --muted-2: #5E6673;
+  --border: #2B3139;
+  --border-2: #3C424D;
   --accent: #FCD535;
   --accent-light: #FFE066;
   --accent-dark: #E6C200;
-  --green: #00C853;
-  --green-dark: #009624;
+  --green: #0ECB81;
+  --green-dark: #0BA360;
   --red: #F6465D;
   --red-dark: #D9304A;
   --blue: #1E80FF;
@@ -35,12 +39,11 @@
   --r-md: 6px;
   --r-lg: 8px;
   --r-xl: 12px;
-  --r-full: 9999px;
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
   --ease: cubic-bezier(.4, 0, .2, 1);
-  --ease-fast: 150ms var(--ease);
 }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; background: var(--bg); }
 body {
@@ -48,240 +51,231 @@ body {
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   line-height: 1.4;
   font-size: 14px;
+  padding-bottom: 72px;
 }
-/* Header */
+
+/* ---------- Header ---------- */
 header {
   background: var(--bg-2);
   color: var(--text);
-  padding: 0 20px;
+  padding: 0 16px;
   height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  position: sticky; top: 0; z-index: 100;
   border-bottom: 1px solid var(--border);
 }
 header .brand { display: flex; align-items: center; gap: 10px; }
 header .brand .logo-mark {
   width: 32px; height: 32px; border-radius: var(--r-sm);
-  background: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
 }
 header .brand .logo-mark svg { width: 18px; height: 18px; stroke: #000; }
 header .brand h1 { margin: 0; font-size: 16px; font-weight: 700; letter-spacing: -.2px; color: var(--text); }
-header .brand .tag { font-size: 10px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
-header .right { display: flex; align-items: center; gap: 10px; }
+header .brand .greeting { font-size: 11px; color: var(--muted); font-weight: 500; }
+header .right { display: flex; align-items: center; gap: 8px; }
 header .user { font-size: 13px; color: var(--text-2); font-weight: 500; }
 select.lang {
-  padding: 6px 10px; border-radius: var(--r-sm); border: 1px solid var(--border);
-  background: var(--bg-3); color: var(--text); font-size: 12px; font-weight: 600;
-  cursor: pointer; outline: none; transition: border-color .15s ease;
+  padding: 6px 10px; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: var(--bg-3); color: var(--text);
+  font-size: 12px; font-weight: 600; cursor: pointer; outline: none;
 }
-select.lang:hover { border-color: var(--accent); }
 select.lang option { color: var(--text); background: var(--bg-3); }
-/* Nav */
-nav {
-  background: var(--bg-2);
-  border-bottom: 1px solid var(--border);
-  padding: 0 16px;
-  display: flex; gap: 0; overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  position: sticky; top: 56px; z-index: 90;
-  scrollbar-width: none;
+button.icon-btn {
+  background: var(--bg-3); border: 1px solid var(--border); color: var(--muted);
+  width: 36px; height: 36px; border-radius: var(--r-sm); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+  transition: all .15s var(--ease);
 }
-nav::-webkit-scrollbar { display: none; }
-nav button {
-  border: none; background: transparent; color: var(--muted);
-  padding: 12px 16px; cursor: pointer; font-size: 13px; font-weight: 600;
-  white-space: nowrap;
-  transition: color .15s ease;
-  display: inline-flex; align-items: center; gap: 6px;
-  border-bottom: 2px solid transparent; margin-bottom: -1px;
-}
-nav button:hover { color: var(--text); }
-nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
-nav button .ic { width: 14px; height: 14px; }
-/* Main */
-main { max-width: 1280px; margin: 16px auto 48px; padding: 0 16px; }
-@media (max-width: 640px) { main { padding: 0 12px; margin: 12px auto 40px; } }
+button.icon-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-/* Balance card */
-.balance-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 24px;
-  margin-bottom: 16px;
-  position: relative;
+/* ---------- Bottom Nav (4 sections) ---------- */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: var(--bg-2); border-top: 1px solid var(--border);
+  display: flex; justify-content: space-around; align-items: center;
+  height: 64px; padding: 0 8px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,.3);
 }
-.balance-card .label { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
-.balance-card .value { font-size: 32px; font-weight: 700; color: var(--text); font-family: var(--mono); letter-spacing: -.5px; line-height: 1; margin-bottom: 4px; }
+.bottom-nav button {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  padding: 8px 4px; font-size: 10px; font-weight: 600; font-family: inherit;
+  transition: color .15s ease; border-radius: var(--r-sm);
+  max-width: 80px;
+}
+.bottom-nav button.active { color: var(--accent); }
+.bottom-nav button .ic { font-size: 20px; }
+.bottom-nav button:hover { color: var(--text); }
+
+/* Desktop sidebar */
+@media (min-width: 769px) {
+  body { padding-bottom: 0; padding-left: 220px; }
+  .bottom-nav {
+    position: fixed; left: 0; top: 56px; bottom: 0; right: auto;
+    width: 220px; height: auto; flex-direction: column;
+    justify-content: flex-start; gap: 4px; padding: 16px 8px;
+    border-top: none; border-right: 1px solid var(--border);
+    box-shadow: 2px 0 10px rgba(0,0,0,.2);
+  }
+  .bottom-nav button {
+    flex: none; width: 100%; flex-direction: row; justify-content: flex-start;
+    gap: 12px; padding: 12px 16px; font-size: 14px; max-width: none;
+    border-radius: var(--r-md);
+  }
+  .bottom-nav button .ic { font-size: 18px; }
+  .bottom-nav button.active { background: rgba(252,213,53,.08); }
+  main { margin-left: 0; }
+}
+
+/* ---------- Main ---------- */
+main { max-width: 1200px; margin: 16px auto 24px; padding: 0 16px; }
+@media (max-width: 640px) { main { padding: 0 12px; margin: 12px auto 20px; } }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--card); border-radius: var(--r-lg); padding: 16px;
+  border: 1px solid var(--border); margin-bottom: 12px;
+  transition: border-color .15s ease;
+  animation: fadeIn .2s var(--ease);
+}
+.card:hover { border-color: var(--border-2); }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- Balance card ---------- */
+.balance-card {
+  background: var(--bg-3); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 20px; margin-bottom: 16px;
+}
+.balance-card .label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+.balance-card .value { font-size: 32px; font-weight: 700; color: var(--text); font-family: var(--mono); letter-spacing: -0.5px; line-height: 1; margin-bottom: 4px; }
 .balance-card .sub { font-size: 12px; color: var(--muted); }
 .balance-card .demo-tag {
   display: inline-flex; align-items: center; gap: 4px;
-  background: rgba(240,185,11,.12); color: var(--accent);
-  padding: 3px 8px; border-radius: var(--r-sm); font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px;
+  background: rgba(252,213,53,.1); color: var(--accent);
+  padding: 3px 8px; border-radius: var(--r-sm);
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  margin-bottom: 10px;
 }
-.balance-card .demo-tag::before { content: '⚠'; }
+.balance-card .demo-tag::before { content: '⚠ '; }
 
-/* Hero */
-.hero {
-  background: var(--bg-3);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 24px;
-  margin-bottom: 16px;
-  position: relative;
-  overflow: hidden;
+/* ---------- Quick actions ---------- */
+.quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+.quick-action {
+  background: var(--bg-3); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 14px 8px;
+  text-align: center; cursor: pointer;
+  font-weight: 500; font-size: 11px; color: var(--text-2);
+  transition: all .15s var(--ease);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
 }
-.hero::before { content: ''; position: absolute; top: 0; right: 0; width: 200px; height: 100%; background: linear-gradient(90deg, transparent, rgba(240,185,11,.03)); pointer-events: none; }
-.hero h1 { font-size: 24px; font-weight: 700; margin: 0 0 6px; color: var(--text); letter-spacing: -.3px; }
-.hero p { font-size: 13px; color: var(--muted); margin: 0 0 16px; line-height: 1.5; }
-.hero .cta { display: flex; gap: 8px; flex-wrap: wrap; }
-.hero .illustration { position: absolute; right: 20px; bottom: -20px; width: 360px; max-width: 45%; opacity: .95; filter: drop-shadow(0 16px 32px rgba(0,0,0,.3)); pointer-events: none; z-index: 0; }
-@media (max-width: 768px) { .hero .illustration { display: none; } .hero { padding: 20px 16px; } .hero h1 { font-size: 20px; } }
+.quick-action:hover { border-color: var(--accent); color: var(--text); }
+.quick-action .ic { font-size: 20px; color: var(--accent); }
+.quick-action span { position: relative; z-index: 1; }
 
-/* Feature grids */
-.feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 16px; }
-.feat {
-  background: var(--bg-3);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 16px;
-  transition: border-color .15s ease, background .15s ease;
-}
-.feat:hover { border-color: var(--border-2); background: var(--bg-4); }
-.feat .ic {
-  width: 32px; height: 32px; border-radius: var(--r-sm);
-  background: rgba(240,185,11,.1); color: var(--accent);
-  display: flex; align-items: center; justify-content: center; font-size: 16px; margin-bottom: 10px;
-}
-.feat .ic svg { width: 16px; height: 16px; stroke: var(--accent); }
-.feat h4 { margin: 0 0 4px; font-size: 13px; font-weight: 600; color: var(--text); }
-.feat p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.4; }
-
+/* ---------- Tiles ---------- */
 .tile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin-bottom: 16px; }
 .tile {
-  background: var(--bg-3);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 14px 8px;
-  text-align: center;
-  cursor: pointer; font-weight: 500; font-size: 12px; color: var(--text-2);
+  background: var(--bg-3); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 14px 8px;
+  text-align: center; cursor: pointer;
+  font-weight: 500; font-size: 12px; color: var(--text-2);
   transition: all .15s var(--ease);
   display: flex; flex-direction: column; align-items: center; gap: 6px;
 }
 .tile:hover { border-color: var(--accent); color: var(--text); background: var(--bg-4); }
 .tile .ic { font-size: 18px; color: var(--muted); transition: color .15s ease; }
 .tile:hover .ic { color: var(--accent); }
-.tile span { position: relative; z-index: 1; }
 
-/* Empty state */
-.empty { text-align: center; padding: 40px 20px; }
-.empty .illustration { width: 80px; height: 80px; margin: 0 auto 12px; opacity: .3; }
-.empty h4 { margin: 0 0 6px; color: var(--text); font-weight: 600; font-size: 15px; }
-.empty p { margin: 0 0 16px; color: var(--muted); font-size: 13px; }
+/* ---------- Feat grid ---------- */
+.feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.feat {
+  background: var(--bg-3); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 14px;
+  transition: border-color .15s ease;
+}
+.feat:hover { border-color: var(--border-2); }
+.feat .ic { width: 28px; height: 28px; border-radius: var(--r-sm); background: rgba(252,213,53,.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 14px; margin-bottom: 8px; }
+.feat .ic svg { width: 14px; height: 14px; stroke: var(--accent); }
+.feat h4 { margin: 0 0 3px; font-size: 13px; font-weight: 600; color: var(--text); }
+.feat p { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.4; }
 
-/* Forms */
-label { display: block; font-size: 12px; font-weight: 600; margin: 12px 0 4px; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; }
+/* ---------- Forms ---------- */
+label { display: block; font-size: 11px; font-weight: 600; margin: 12px 0 4px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
 input, select, textarea {
-  width: 100%; padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  font-size: 14px; font-family: inherit;
-  background: var(--bg-2); color: var(--text);
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--r-sm);
+  font-size: 14px; font-family: inherit; background: var(--bg-2); color: var(--text);
   transition: border-color .15s ease;
 }
 input::placeholder { color: var(--muted-2); }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); background: var(--bg-3); }
 input:hover:not(:focus) { border-color: var(--border-2); }
 
-/* Buttons */
+/* ---------- Buttons ---------- */
 button.primary {
   background: var(--accent); color: #000; border: none;
-  padding: 10px 20px; border-radius: var(--r-sm); cursor: pointer;
+  padding: 10px 18px; border-radius: var(--r-sm); cursor: pointer;
   font-size: 14px; font-weight: 600; font-family: inherit;
   transition: background .15s ease, opacity .15s ease;
   display: inline-flex; align-items: center; gap: 6px;
 }
 button.primary:hover { background: var(--accent-light); }
 button.primary:active { opacity: .85; }
-button.primary.secondary {
-  background: var(--bg-4); color: var(--text); border: 1px solid var(--border);
-}
+button.primary.secondary { background: var(--bg-4); color: var(--text); border: 1px solid var(--border); }
 button.primary.secondary:hover { background: var(--border-2); }
 button.primary.danger { background: var(--red); color: #fff; }
 button.primary.danger:hover { background: var(--red-dark); }
 
 button.ghost {
   background: transparent; color: var(--accent); border: 1px solid var(--border);
-  padding: 9px 18px; border-radius: var(--r-sm); cursor: pointer;
+  padding: 9px 16px; border-radius: var(--r-sm); cursor: pointer;
   font-size: 14px; font-weight: 600; font-family: inherit;
   transition: all .15s var(--ease);
   display: inline-flex; align-items: center; gap: 6px;
 }
-button.ghost:hover { border-color: var(--accent); background: rgba(240,185,11,.05); }
+button.ghost:hover { border-color: var(--accent); background: rgba(252,213,53,.05); }
 
 button.danger {
   background: var(--red); color: #fff; border: none;
   padding: 8px 16px; border-radius: var(--r-sm); cursor: pointer;
-  font-weight: 600; font-family: inherit;
-  transition: filter .15s ease;
+  font-weight: 600; font-family: inherit; transition: filter .15s ease;
 }
 button.danger:hover { filter: brightness(.9); }
 
-button.link {
-  background: none; border: none; color: var(--accent); cursor: pointer;
-  font-weight: 600; padding: 4px 0; font-family: inherit; font-size: 13px;
-}
+button.link { background: none; border: none; color: var(--accent); cursor: pointer; font-weight: 600; padding: 4px 0; font-family: inherit; font-size: 13px; }
 button.link:hover { text-decoration: underline; }
 
-/* Tables */
+/* ---------- Tables ---------- */
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
-th {
-  background: var(--bg-2); color: var(--muted); font-weight: 600;
-  font-size: 11px; text-transform: uppercase; letter-spacing: .4px;
-  position: sticky; top: 0;
-}
+th { background: var(--bg-2); color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
 tbody tr { transition: background .1s ease; }
 tbody tr:hover { background: var(--bg-3); }
 tbody tr:last-child td { border-bottom: none; }
 td { color: var(--text); font-family: var(--mono); font-size: 13px; }
 td.text { font-family: var(--font); }
 
-/* Messages */
-.msg {
-  padding: 10px 14px; border-radius: var(--r-sm); margin: 10px 0;
-  font-size: 13px; font-weight: 500;
-  display: flex; align-items: center; gap: 8px;
-}
+/* ---------- Messages ---------- */
+.msg { padding: 10px 14px; border-radius: var(--r-sm); margin: 10px 0; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
 .msg.ok { background: rgba(14,203,129,.1); color: var(--green); border-left: 3px solid var(--green); }
 .msg.err { background: rgba(246,70,93,.1); color: var(--red); border-left: 3px solid var(--red); }
 
-/* Login */
+/* ---------- Auth box ---------- */
 .login-box { max-width: 400px; margin: 40px auto; }
 .login-box h2 { font-size: 22px; font-weight: 700; color: var(--text); margin: 0 0 4px; }
 .login-box .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
 
-/* Badges */
-.badge {
-  display: inline-flex; align-items: center; padding: 2px 8px;
-  border-radius: var(--r-sm); font-size: 11px; font-weight: 600;
-  background: var(--bg-4); color: var(--muted);
-}
-.badge.unread { background: rgba(240,185,11,.12); color: var(--accent); }
+/* ---------- Badges ---------- */
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: var(--r-sm); font-size: 11px; font-weight: 600; background: var(--bg-4); color: var(--muted); }
+.badge.unread { background: rgba(252,213,53,.12); color: var(--accent); }
 .badge.success { background: rgba(14,203,129,.12); color: var(--green); }
 .badge.danger { background: rgba(246,70,93,.12); color: var(--red); }
 .badge.info { background: rgba(30,128,255,.12); color: var(--blue); }
 
-/* Layout utilities */
+/* ---------- Layout ---------- */
 .row { display: flex; gap: 12px; flex-wrap: wrap; }
 .col { flex: 1; min-width: 240px; }
 .title { font-size: 16px; font-weight: 600; color: var(--text); margin: 0 0 12px; }
@@ -289,68 +283,64 @@ td.text { font-family: var(--font); }
 .divider { height: 1px; background: var(--border); margin: 16px 0; }
 .hidden { display: none !important; }
 
-/* Demo banner */
+/* ---------- Empty state ---------- */
+.empty { text-align: center; padding: 40px 20px; }
+.empty .illustration { width: 80px; height: 80px; margin: 0 auto 12px; opacity: .3; }
+.empty h4 { margin: 0 0 6px; color: var(--text); font-weight: 600; font-size: 15px; }
+.empty p { margin: 0 0 16px; color: var(--muted); font-size: 13px; max-width: 360px; margin-left: auto; margin-right: auto; }
+
+/* ---------- Demo warning banner ---------- */
 .demo-banner {
-  background: rgba(240,185,11,.08);
-  border: 1px solid rgba(240,185,11,.25);
-  border-radius: var(--r-sm);
-  padding: 10px 14px; margin-bottom: 16px;
+  background: rgba(252,213,53,.08); border: 1px solid rgba(252,213,53,.25);
+  border-radius: var(--r-sm); padding: 10px 14px; margin-bottom: 16px;
   font-size: 12px; color: var(--accent); line-height: 1.5;
   display: flex; align-items: flex-start; gap: 8px;
 }
 .demo-banner .ic { font-size: 14px; flex-shrink: 0; }
 .demo-banner strong { color: var(--accent-light); }
 
-/* Toast */
+/* ---------- Toast ---------- */
 #toast { position: fixed; bottom: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
-.toast {
-  background: var(--bg-3); color: var(--text);
-  padding: 12px 16px; border-radius: var(--r-md);
-  box-shadow: var(--shadow-lg); font-size: 13px; font-weight: 500;
-  animation: slideIn .2s var(--ease); max-width: 320px;
-  border: 1px solid var(--border);
-}
+.toast { background: var(--bg-3); color: var(--text); padding: 12px 16px; border-radius: var(--r-md); box-shadow: var(--shadow-lg); font-size: 13px; font-weight: 500; animation: slideIn .2s var(--ease); max-width: 320px; border: 1px solid var(--border); }
 .toast.ok { background: rgba(14,203,129,.15); color: var(--green); border-color: rgba(14,203,129,.3); }
 .toast.err { background: rgba(246,70,93,.15); color: var(--red); border-color: rgba(246,70,93,.3); }
 @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
 
-/* Icon & utilities */
+/* ---------- Icon ---------- */
 .ic { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-/* Responsive */
+/* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   header { padding: 0 12px; height: 52px; }
   header .brand h1 { font-size: 15px; }
   header .brand .tag { display: none; }
   nav { padding: 0 8px; top: 52px; }
   nav button { padding: 10px 12px; font-size: 12px; }
-  main { padding: 0 12px; margin: 12px auto 40px; }
+  main { padding: 0 12px; margin: 12px auto 20px; }
   .card { padding: 16px; border-radius: var(--r-md); }
   .balance-card { padding: 18px 16px; }
   .balance-card .value { font-size: 26px; }
-  .hero { padding: 20px 16px; }
-  .hero h1 { font-size: 20px; }
-  .tile-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-  .tile { padding: 12px 6px; font-size: 11px; }
+  .quick-actions { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .quick-action { padding: 12px 6px; font-size: 11px; }
   .feat-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) {
-  .tile-grid { grid-template-columns: repeat(2, 1fr); }
-  .hero .cta { flex-direction: column; }
-  .hero .cta button { width: 100%; justify-content: center; }
+  .quick-actions { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* Scrollbar */
+/* ---------- Scrollbar ---------- */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted-2); }
 
-/* Focus & selection */
+/* ---------- Focus ---------- */
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-::selection { background: rgba(240,185,11,.2); color: var(--accent-light); }
 
-/* Text utilities */
+/* ---------- Selection ---------- */
+::selection { background: rgba(252,213,53,.2); color: var(--accent-light); }
+
+/* ---------- Utility ---------- */
 .text-green { color: var(--green); }
 .text-red { color: var(--red); }
 .text-accent { color: var(--accent); }
@@ -367,601 +357,254 @@ td.text { font-family: var(--font); }
 <body>
 <header>
   <div class="brand">
-    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,.2))">
-      <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
-      <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
-    </svg>
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+    </div>
     <div>
       <h1>Ariary Numeric</h1>
-      <div class="tag">Portefeuille numérique · Madagascar</div>
+      <div class="greeting">Portefeuille numérique · Madagascar</div>
     </div>
   </div>
   <div class="right">
     <select class="lang" id="langSel" title="Language">
-      <option value="fr">🇫🇷 FR</option>
-      <option value="mg">🇲🇬 MG</option>
-      <option value="en">🇬🇧 EN</option>
+      <option value="fr">FR</option>
+      <option value="mg">MG</option>
+      <option value="en">EN</option>
     </select>
     <div class="user" id="userLabel">…</div>
+    <button class="icon-btn" id="notifBtn" onclick="view('notifications')" title="Notifications">🔔</button>
   </div>
 </header>
-<nav id="nav" class="hidden"></nav>
+
+<nav class="bottom-nav" id="nav"></nav>
+
 <main id="main"></main>
+
+<div id="toast"></div>
 
 <script src="/static/js/qrcode.min.js"></script>
 <script>
 const API = window.location.origin + '/api/v1';
+
 // --- inline icons (Lucide, MIT) ---
 const ICONS = {
-  'arrow-right': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M5 12h14\" />\n  <path d=\"m12 5 7 7-7 7\" />\n</svg>",
-  'bell': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M10.268 21a2 2 0 0 0 3.464 0\" />\n  <path d=\"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326\" />\n</svg>",
-  'credit-card': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <rect width=\"20\" height=\"14\" x=\"2\" y=\"5\" rx=\"2\" />\n  <line x1=\"2\" x2=\"22\" y1=\"10\" y2=\"10\" />\n  <path d=\"M6 14h2\" />\n</svg>",
-  'file-text': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z\" />\n  <path d=\"M14 2v5a1 1 0 0 0 1 1h5\" />\n  <path d=\"M10 9H8\" />\n  <path d=\"M16 13H8\" />\n  <path d=\"M16 17H8\" />\n</svg>",
-  'package': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\" />\n  <path d=\"M12 22V12\" />\n  <polyline points=\"3.29 7 12 12 20.71 7\" />\n  <path d=\"m7.5 4.27 9 5.15\" />\n</svg>",
-  'plus': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M5 12h14\" />\n  <path d=\"M12 5v14\" />\n</svg>",
-  'qr-code': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <rect width=\"5\" height=\"5\" x=\"3\" y=\"3\" rx=\"1\" />\n  <rect width=\"5\" height=\"5\" x=\"16\" y=\"3\" rx=\"1\" />\n  <rect width=\"5\" height=\"5\" x=\"3\" y=\"16\" rx=\"1\" />\n  <path d=\"M21 16h-3a2 2 0 0 0-2 2v3\" />\n  <path d=\"M21 21v.01\" />\n  <path d=\"M12 7v3a2 2 0 0 1-2 2H7\" />\n  <path d=\"M3 12h.01\" />\n  <path d=\"M12 3h.01\" />\n  <path d=\"M12 16v.01\" />\n  <path d=\"M16 12h1\" />\n  <path d=\"M21 12v.01\" />\n  <path d=\"M12 21v-1\" />\n</svg>",
-  'search': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"m21 21-4.34-4.34\" />\n  <circle cx=\"11\" cy=\"11\" r=\"8\" />\n</svg>",
-  'send': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z\" />\n  <path d=\"m21.854 2.147-10.94 10.939\" />\n</svg>",
-  'shield': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\" />\n</svg>",
-  'trending-up': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M16 7h6v6\" />\n  <path d=\"m22 7-8.5 8.5-5-5L2 17\" />\n</svg>",
-  'user': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\" />\n  <circle cx=\"12\" cy=\"7\" r=\"4\" />\n</svg>",
-  'wallet': "<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"18\"\n  height=\"18\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"currentColor\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\" />\n  <path d=\"M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4\" />\n</svg>",
+  'arrow-right': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12h14'/><path d='m12 5 7 7-7 7'/></svg>",
+  'bell': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10.268 21a2 2 0 0 0 3.464 0'/><path d='M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326'/></svg>",
+  'credit-card': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='20' height='14' x='2' y='5' rx='2'/><line x1='2' x2='22' y1='10' y2='10'/><path d='M6 14h2'/></svg>",
+  'file-text': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z'/><path d='M14 2v5a1 1 0 0 0 1 1h5'/><path d='M10 9H8'/><path d='M16 13H8'/><path d='M16 17H8'/></svg>",
+  'home': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/><polyline points='9 22 9 12 15 12 15 22'/></svg>",
+  'package': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z'/><path d='M12 22V12'/><polyline points='3.29 7 12 12 20.71 7'/><path d='m7.5 4.27 9 5.15'/></svg>",
+  'plus': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12h14'/><path d='M12 5v14'/></svg>",
+  'qr-code': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='5' height='5' x='3' y='3' rx='1'/><rect width='5' height='5' x='16' y='3' rx='1'/><rect width='5' height='5' x='3' y='16' rx='1'/><path d='M21 16h-3a2 2 0 0 0-2 2v3'/><path d='M21 21v.01'/><path d='M12 7v3a2 2 0 0 1-2 2H7'/><path d='M3 12h.01'/><path d='M12 3h.01'/><path d='M12 16v.01'/><path d='M16 12h1'/><path d='M21 12v.01'/><path d='M12 21v-1'/></svg>",
+  'search': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m21 21-4.34-4.34'/><circle cx='11' cy='11' r='8'/></svg>",
+  'send': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z'/><path d='m21.854 2.147-10.94 10.939'/></svg>",
+  'shield': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 0-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'/></svg>",
+  'trending-up': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M16 7h6v6'/><path d='m22 7-8.5 8.5-5-5L2 17'/></svg>",
+  'user': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>",
+  'wallet': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1'/><path d='M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4'/></svg>",
+  'globe': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20'/><path d='M2 12h20'/></svg>",
+  'arrow-right': "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12h14'/><path d='m12 5 7 7-7 7'/></svg>"
 };
 function icon(name, cls='') { const s = ICONS[name]; if (!s) return ''; return s.replace('<svg', '<svg class="ic '+cls+'"'); }
+
 let token = localStorage.getItem('token');
 let lang = localStorage.getItem('lang') || null;
 let user = JSON.parse(localStorage.getItem('user') || 'null');
 let currentView = null;
-let NOTIF_COUNT_UNREAD = null;
 
 // ============ i18n ============
 const I18N = {
   fr: {
     guest_try: 'Essayer en mode invité',
-    guest_ok: 'Compte invité créé (50 000 Ar de démonstration préchargés).',
-    login: 'Connexion',
-    login_btn: 'Se connecter',
-    login_email: 'E-mail',
-    login_pass: 'Mot de passe',
-    login_no_account: 'Pas de compte ?',
-    login_register_link: 'Créer un compte',
-    login_guest: 'Essayer en mode invité (démo, sans inscription)',
-    reg: 'Créer un compte',
-    reg_btn: "S'inscrire",
-    reg_already: 'Déjà un compte ? Se connecter',
-    reg_first: 'Prénom',
-    reg_last: 'Nom',
-    reg_phone: 'Téléphone',
-    reg_pass2: 'Confirmer',
+    login: 'Connexion', login_btn: 'Se connecter', login_email: 'E-mail', login_pass: 'Mot de passe',
+    login_no_account: 'Pas de compte ?', login_register_link: 'Créer un compte', login_guest: 'Essayer en mode invité (démo)',
+    reg: 'Créer un compte', reg_btn: "S'inscrire", reg_already: 'Déjà un compte ? Se connecter',
+    reg_first: 'Prénom', reg_last: 'Nom', reg_phone: 'Téléphone', reg_pass2: 'Confirmer',
     reg_mismatch: 'Les mots de passe ne correspondent pas.',
-    nav_dashboard: 'Tableau de bord',
-    nav_wallet: 'Portefeuille',
-    nav_transfer: 'Envoyer',
-    nav_topup: 'Recharger (démo)',
-    nav_history: 'Historique',
-    nav_shipments: 'Expéditions',
-    nav_customs: 'Douane',
-    nav_blockchain: 'Blockchain',
-    nav_qr: 'QR Code',
-    nav_notifications: 'Notifications',
-    nav_profile: 'Profil',
-    landing_title: 'Ariary Numeric',
-    landing_sub: 'Portefeuille numérique de démonstration — aucun argent réel.',
+    nav_home: 'Accueil', nav_wallet: 'Portefeuille', nav_transit: 'Transit', nav_profile: 'Profil',
+    landing_title: 'Ariary Numeric', landing_sub: 'Portefeuille numérique de démonstration — aucun argent réel.',
     landing_desc: 'Transferts internes, suivi logistique, transit/douane, empreintes blockchain de test, estimations de paiements internationaux.',
-    landing_cta_login: 'Se connecter',
-    landing_cta_register: 'Créer un compte',
-    landing_cta_guest: 'Essayer en mode invité',
+    landing_cta_login: 'Se connecter', landing_cta_register: 'Créer un compte', landing_cta_guest: 'Essayer en mode invité',
     feats_title: 'Fonctionnalités',
-    feats: [
-      'Portefeuille démo avec rechargement et transferts entre utilisateurs (idempotence)',
-      "Suivi d'expéditions avec chronologie d'événements",
-      'Dossiers douane avec checklist de documents et historique',
-      'Empreintes SHA-256 des opérations enregistrées (réseau de test)',
-      'Estimation de transferts internationaux (taux démo)',
-      'Notifications avec marquage lu / tout marquer',
-    ],
-    landing_warning: "Avertissement : portefeuille de démonstration, aucun argent réel. Transferts internationaux réels désactivés.",
-    dash_title: 'Portefeuille de démonstration',
-    dash_no_real: 'Aucun argent réel.',
-    dash_notifs: 'Notifications',
-    dash_unread: 'non lues',
-    dash_read: 'tout lu',
-    dash_recent: 'Dernières opérations',
-    table_ref: 'Référence',
-    table_amount: 'Montant',
-    table_type: 'Type',
-    table_status: 'Statut',
-    table_date: 'Date',
-    none: 'Aucune transaction.',
-    wallet_title: 'Portefeuille',
-    wallet_demo: 'Portefeuille de démonstration — aucun argent réel',
-    tr_title: 'Envoyer',
-    tr_to: 'E-mail du destinataire',
-    tr_amount: 'Montant (MGA)',
-    tr_desc: 'Description (optionnel)',
-    tr_btn: 'Confirmer le transfert',
-    tr_ok: 'Transfert effectué.',
-    tu_title: 'Recharger (démo)',
-    tu_label: 'Montant (MGA, max 1 000 000)',
-    tu_btn: 'Recharger',
-    tu_ok: 'Rechargement démo effectué.',
+    feats: ['Portefeuille démo avec rechargement et transferts entre utilisateurs (idempotence)','Suivi d\'expéditions avec chronologie d\'événements','Dossiers douane avec checklist de documents et historique','Empreintes SHA-256 des opérations enregistrées (réseau de test)','Estimation de transferts internationaux (taux démo)','Notifications avec marquage lu / tout marquer'],
+    landing_warning: 'Avertissement : portefeuille de démonstration, aucun argent réel. Transferts internationaux réels désactivés.',
+    dash_title: 'Portefeuille de démonstration', dash_no_real: 'Aucun argent réel.',
+    dash_notifs: 'Notifications', dash_unread: 'non lues', dash_read: 'tout lu', dash_recent: 'Dernières opérations',
+    table_ref: 'Référence', table_amount: 'Montant', table_type: 'Type', table_status: 'Statut', table_date: 'Date',
+    none: 'Aucune transaction.', wallet_title: 'Portefeuille', wallet_demo: 'Portefeuille de démonstration — aucun argent réel',
+    tr_title: 'Envoyer', tr_to: 'E-mail du destinataire', tr_amount: 'Montant (MGA)', tr_desc: 'Description (optionnel)',
+    tr_btn: 'Confirmer le transfert', tr_ok: 'Transfert effectué.',
+    tu_title: 'Recharger (démo)', tu_label: 'Montant (MGA, max 1 000 000)', tu_btn: 'Recharger', tu_ok: 'Rechargement démo effectué.',
     tu_note: 'Portefeuille de démonstration — aucun argent réel.',
-    hist_title: 'Historique',
-    tx_title: 'Détail transaction',
-    ship_title: 'Expéditions',
-    ship_new: 'Nouvelle expédition',
-    ship_none: "Aucune expédition.",
-    ship_name: 'Nom de la marchandise',
-    ship_origin: 'Origine',
-    ship_dest: 'Destination',
-    ship_mode: 'Mode',
-    ship_carrier: 'Transporteur',
-    ship_track: 'N° de suivi',
-    ship_create: 'Créer',
-    ship_ok: 'Expédition créée.',
-    ship_detail: 'Détail expédition',
-    ship_route: 'Trajet',
-    ship_status_lbl: 'Statut',
-    ship_mode_lbl: 'Mode',
-    ship_carrier_lbl: 'Transporteur',
-    ship_track_lbl: 'Suivi',
-    ship_timeline: 'Chronologie',
-    docs: 'Documents',
-    docs_title: 'Documents',
-    docs_upload: 'Téléverser un document',
-    docs_need: 'Fichier requis.',
-    docs_ok: 'Document ajouté.',
-    new_status: 'Nouveau statut',
-    location: 'Lieu',
-    add_event: 'Ajouter événement',
-    ev_ok: 'Événement ajouté.',
-    cust_title: 'Transit & douane',
-    cust_new: 'Nouveau dossier',
-    cust_none: 'Aucun dossier.',
-    cust_desc: 'Description de la marchandise',
-    cust_origin: "Pays d'origine",
-    cust_dest: 'Pays de destination',
-    cust_create: 'Créer',
-    cust_ok: 'Dossier créé.',
-    cust_detail: 'Dossier douane',
-    cust_req: 'Documents requis',
-    cust_hist: 'Historique',
-    cust_update: 'Mettre à jour',
-    cust_ok_upd: 'Mis à jour.',
+    hist_title: 'Historique', tx_title: 'Détail transaction',
+    ship_title: 'Expéditions', ship_new: 'Nouvelle expédition', ship_none: 'Aucune expédition.',
+    ship_name: 'Nom de la marchandise', ship_origin: 'Origine', ship_dest: 'Destination', ship_mode: 'Mode',
+    ship_carrier: 'Transporteur', ship_track: 'N° de suivi', ship_create: 'Créer', ship_ok: 'Expédition créée.',
+    ship_detail: 'Détail expédition', ship_route: 'Trajet', ship_status_lbl: 'Statut', ship_mode_lbl: 'Mode',
+    ship_carrier_lbl: 'Transporteur', ship_track_lbl: 'Suivi', ship_timeline: 'Chronologie',
+    docs: 'Documents', docs_title: 'Documents', docs_upload: 'Téléverser un document', docs_need: 'Fichier requis.', docs_ok: 'Document ajouté.',
+    new_status: 'Nouveau statut', location: 'Lieu', add_event: 'Ajouter événement', ev_ok: 'Événement ajouté.',
+    cust_title: 'Transit & douane', cust_new: 'Nouveau dossier', cust_none: 'Aucun dossier.',
+    cust_desc: 'Description de la marchandise', cust_origin: "Pays d'origine", cust_dest: 'Pays de destination',
+    cust_create: 'Créer', cust_ok: 'Dossier créé.', cust_detail: 'Dossier douane',
+    cust_req: 'Documents requis', cust_hist: 'Historique', cust_update: 'Mettre à jour', cust_ok_upd: 'Mis à jour.',
     cust_docs_uploaded: 'Documents téléversés',
-    bc_title: 'Blockchain (test)',
-    bc_network: 'Réseau',
-    bc_rpc: 'RPC configuré',
-    bc_status: 'Statut',
-    bc_note: 'Empreintes des opérations enregistrées (non confirmées sur chaîne tant que RPC non configuré).',
-    bc_reg_title: 'Enregistrer une empreinte',
-    bc_type: 'Type (ex: document)',
-    bc_data: 'Données à empreinter',
-    bc_save: 'Enregistrer',
-    bc_verify: 'Vérifier',
-    bc_records: 'Enregistrements',
-    bc_none: 'Aucun enregistrement.',
-    pay_title: 'Paiements (démo)',
-    pay_rates: 'Taux de change',
-    pay_no_rates: 'Aucun taux.',
-    pay_est_title: 'Estimation de transfert international',
-    pay_est_origin: "Pays d'origine",
-    pay_est_dest: 'Pays de destination',
-    pay_est_oc: 'Devise origine',
-    pay_est_dc: 'Devise destination',
-    pay_est_amount: 'Montant',
-    pay_est_btn: 'Estimer',
-    pay_est_fee: 'Frais estimés',
-    pay_est_receive: 'Montant estimé reçu',
-    pay_my: 'Mes estimations',
-    pay_none: 'Aucune estimation.',
-    pay_ref: 'Réf',
-    pay_rate: 'Taux',
-    my_ref: 'Ma référence / destinataire',
-    notif_title: 'Notifications',
-    notif_readall: 'Tout marquer comme lu',
-    notif_read: 'Marquer comme lu',
-    notif_none: 'Aucune notification.',
-    notif_read_lbl: 'lu',
-    notif_unread_lbl: 'non lu',
-    prof_title: 'Profil',
-    prof_save: 'Enregistrer',
-    prof_logout: 'Se déconnecter',
-    prof_saved: 'Profil mis à jour.',
-    prof_created: 'créé le',
-    prof_lang: 'Langue',
-    qr_title: 'QR Code de réception',
-    qr_code: 'Votre code',
-    qr_scan: 'Scanner / saisir un code',
-    qr_payload: 'Payload scanné',
-    qr_amount: 'Montant (MGA)',
-    qr_pay: 'Payer',
-    qr_ok: 'Paiement effectué.',
-    qr_need_to: 'Destinataire requis.',
-    q_amount_invalid: 'Montant invalide.',
-    to_required: 'Destinataire requis.',
+    bc_title: 'Blockchain (test)', bc_network: 'Réseau', bc_rpc: 'RPC configuré', bc_status: 'Statut',
+    bc_note: 'Empreintes des opérations enregistrées (réseau de test).',
+    bc_reg_title: 'Enregistrer une empreinte', bc_type: 'Type (ex: document)', bc_data: 'Données à empreinter',
+    bc_save: 'Enregistrer', bc_verify: 'Vérifier', bc_records: 'Enregistrements', bc_none: 'Aucun enregistrement.',
+    pay_title: 'Paiements (démo)', pay_rates: 'Taux de change', pay_no_rates: 'Aucun taux.',
+    pay_est_title: 'Estimation de transfert international', pay_est_origin: "Pays d'origine",
+    pay_est_dest: 'Pays de destination', pay_est_oc: 'Devise origine', pay_est_dc: 'Devise destination',
+    pay_est_amount: 'Montant', pay_est_btn: 'Estimer', pay_est_fee: 'Frais estimés',
+    pay_est_receive: 'Montant estimé reçu', pay_my: 'Mes estimations', pay_none: 'Aucune estimation.',
+    pay_ref: 'Réf', pay_rate: 'Taux',
+    notif_title: 'Notifications', notif_readall: 'Tout marquer comme lu', notif_read: 'Marquer comme lu',
+    notif_none: 'Aucune notification.', notif_read_lbl: 'lu', notif_unread_lbl: 'non lu',
+    prof_title: 'Profil', prof_save: 'Enregistrer', prof_logout: 'Se déconnecter', prof_saved: 'Profil mis à jour.',
+    prof_created: 'créé le', prof_lang: 'Langue', prof_info: 'Informations personnelles',
+    prof_security: 'Sécurité', prof_settings: 'Paramètres', prof_support: 'Assistance',
+    qr_title: 'QR Code de réception', qr_code: 'Votre code', qr_scan: 'Scanner / saisir un code',
+    qr_payload: 'Payload scanné', qr_amount: 'Montant (MGA)', qr_pay: 'Payer', qr_ok: 'Paiement effectué.',
+    qr_need_to: 'Destinataire requis.', q_amount_invalid: 'Montant invalide.', to_required: 'Destinataire requis.',
     err_unreachable: 'Serveur inaccessible.',
     kind: { transfer: 'Transfert', topup: 'Rechargement', other: 'Opération' },
     modes: { maritime: 'Maritime', aerien: 'Aérien', terrestre: 'Terrestre' },
     ship_statuses: { preparation: 'Préparation', attente_depart: 'En attente de départ', transit: 'En transit', arrive_port: 'Arrivé', dedouanement: 'Dédouanement', libere: 'Libéré', livraison: 'En livraison', livre: 'Livré', retarde: 'Retardé', annule: 'Annulé' },
     cust_statuses: { cree: 'Dossier créé', documents_a_fournir: 'Documents à fournir', verification: 'Documents en vérification', formalites: 'En attente de formalités', formalites_terminees: 'Formalités terminées', clos: 'Dossier clôturé' },
+    guest_ok: 'Compte invité créé (50 000 Ar de démonstration).',
   },
   mg: {
-    guest_try: 'Andao amin\'ny kaonty mpitsidika',
-    guest_ok: 'Voasokatra ny kaonty mpitsidika (50 000 Ar — demo).',
-    login: 'Fidirana',
-    login_btn: 'Hiditra',
-    login_email: 'Mailaka',
-    login_pass: 'Tenimiafina',
-    login_no_account: 'Mbola tsy manana kaonty?',
-    login_register_link: 'Hisokatra kaonty',
-    login_guest: 'Andao ho mpitsidika (demo, tsy misy fisoratana hoatra)',
-    reg: 'Misoratra farahatro',
-    reg_btn: 'Manao fisoratana anarana',
-    reg_already: 'Efa manana kaonty? Hiditra',
-    reg_first: 'Fanampin\'anarana',
-    reg_last: 'Anarana',
-    reg_phone: 'Finday',
-    reg_pass2: 'Safoverina',
-    reg_mismatch: 'Tsy mitovy ny tenimiafina roa.',
-    nav_dashboard: 'Fanaraha-maso',
-    nav_wallet: 'Kitapo',
-    nav_transfer: 'Handefa vola',
-    nav_topup: 'Famenoana (demo)',
-    nav_history: 'Tantara',
-    nav_shipments: 'Fandefasana entana',
-    nav_customs: 'Fanadina entana',
-    nav_blockchain: 'Blockchain',
-    nav_qr: 'Kôdi QR',
-    nav_notifications: 'Fampahafantarana',
-    nav_profile: 'Mpampiasa',
-    landing_title: 'Ariary Numeric',
-    landing_sub: 'Kitapo elektronika santionany — tsy misy vola tena izy.',
+    guest_try: 'Andao amin\'ny kaonty mpitsidika', guest_ok: 'Voasokatra ny kaonty mpitsidika (50 000 Ar — demo).',
+    login: 'Fidirana', login_btn: 'Hiditra', login_email: 'Mailaka', login_pass: 'Tenimiafina',
+    login_no_account: 'Mbola tsy manana kaonty?', login_register_link: 'Hisokatra kaonty', login_guest: 'Andao ho mpitsidika (demo)',
+    reg: 'Misoratra farahatro', reg_btn: 'Manao fisoratana anarana', reg_already: 'Efa manana kaonty? Hiditra',
+    reg_first: 'Fanampin\'anarana', reg_last: 'Anarana', reg_phone: 'Finday', reg_pass2: 'Safoverina', reg_mismatch: 'Tsy mitovy ny tenimiafina roa.',
+    nav_home: 'Fandraisana', nav_wallet: 'Kitapo', nav_transit: 'Fandefasana', nav_profile: 'Mpampiasa',
+    landing_title: 'Ariary Numeric', landing_sub: 'Kitapo elektronika santionany — tsy misy vola tena izy.',
     landing_desc: 'Famindrana anaty, fandahazana entana, fanadina, tenant Blockchain demo, fanaraha-toetry ny fandoavam-bola iraisam-pirenena.',
-    landing_cta_login: 'Hiditra',
-    landing_cta_register: 'Hisokatra kaonty',
-    landing_cta_guest: 'Andao ho mpitsidika',
+    landing_cta_login: 'Hiditra', landing_cta_register: 'Hisokatra kaonty', landing_cta_guest: 'Andao ho mpitsidika',
     feats_title: 'Ny fahaiza-manao',
-    feats: [
-      'Kitapo demo: famenoana sy famindrana eo amin\'ny mpampiasa',
-      'Fandrahahana ny fandefasana entana, araka ny tantara sy ny efa-by',
-      'Fanadina entana: lisitra amin\'ireo taratasy sy tantara',
-      "Tenant SHA-256 an'ny fihandesana voatahiry (réseau demo)",
-      'Fanaraha-toetry ny fandoavam-bola iraisam-pirenana (tavy demo)',
-      'Fampahafantarana: marika fa voavaky ny tao-lahatra',
-    ],
+    feats: ['Kitapo demo: famenoana sy famindrana eo amin\'ny mpampiasa','Fandrahahana ny fandefasana entana, araka ny tantara sy ny efa-by','Fanadina entana: lisitra amin\'ireo taratasy sy tantara',"Tenant SHA-256 an'ny fihandesana voatahiry (réseau demo)",'Fanaraha-toetry ny fandoavam-bola iraisam-pirenena (tavy demo)','Fampahafantarana: marika fa voavaky ny tao-lahatra'],
     landing_warning: 'Fanamarihana: kitapo demo, tsy misy vola tena izy. Ny famindrana iraisam-pirenena tena azy dia tsy mandeha.',
-    dash_title: 'Kitapo demo',
-    dash_no_real: 'tsy misy vola tena azy',
-    dash_notifs: 'Fampahafantarana',
-    dash_unread: 'tsy voavaky',
-    dash_read: 'voavaky rehetra',
-    dash_recent: 'Fihandesana farany',
-    table_ref: 'Rélique',
-    table_amount: 'Vola',
-    table_type: 'Karana',
-    table_status: 'Toe-bolana',
-    table_date: 'Andronyz',
-    none: 'Tsy misy fihandesana.',
-    wallet_title: 'Kitapo',
-    wallet_demo: 'Kitapo demo — tsy misy vola tena azy',
-    tr_title: 'Handefa vola',
-    tr_to: 'Mailakas destinefana',
-    tr_amount: 'Vola (MGA)',
-    tr_desc: 'Famaritana (tsy voatery)',
-    tr_btn: 'Haneho ilay famindrana',
-    tr_ok: 'Voasendina soa aman-tsara.',
-    tu_title: 'Famenoana (démo)',
-    tu_label: 'Vola (MGA, max 1 000 000)',
-    tu_btn: 'Fenoina',
-    tu_ok: 'Voafena soa aman-tsara.',
+    dash_title: 'Kitapo demo', dash_no_real: 'tsy misy vola tena azy',
+    dash_notifs: 'Fampahafantarana', dash_unread: 'tsy voavaky', dash_read: 'voavaky rehetra', dash_recent: 'Fihandesana farany',
+    table_ref: 'Rélique', table_amount: 'Vola', table_type: 'Karana', table_status: 'Toe-bolana', table_date: 'Andronyz',
+    none: 'Tsy misy fihandesana.', wallet_title: 'Kitapo', wallet_demo: 'Kitapo demo — tsy misy vola tena azy',
+    tr_title: 'Handefa vola', tr_to: 'Mailakas destinefana', tr_amount: 'Vola (MGA)', tr_desc: 'Famaritana (tsy voatery)',
+    tr_btn: 'Haneho ilay famindrana', tr_ok: 'Voasendina soa aman-tsara.',
+    tu_title: 'Famenoana (démo)', tu_label: 'Vola (MGA, max 1 000 000)', tu_btn: 'Fenoina', tu_ok: 'Voafena soa aman-tsara.',
     tu_note: 'Kitapo demo — tsy misy vola tena azy.',
-    hist_title: 'Tantara',
-    tx_title: 'Bangiaha fatorana',
-    ship_title: 'Fandefasana entana',
-    ship_new: 'Andefaso vaovaо',
-    ship_none: 'Tsia',
-    ship_name: 'Anarana entana',
-    ship_origin: 'Avy aho',
-    ship_dest: 'Ho aho',
-    ship_mode: 'Fomba',
-    ship_carrier: 'Mpitatitra',
-    ship_track: 'N° fanrahana',
-    ship_create: 'Tsofa',
-    ship_ok: 'Voata-geza ny fandefasana.',
-    ship_detail: 'Foin-daholaza',
-    ship_route: 'Lalan-kalefahana',
-    ship_status_lbl: 'Toe-bolana',
-    ship_mode_lbl: 'Fomba',
-    ship_carrier_lbl: 'Mpitatitra',
-    ship_track_lbl: 'Fanrahana',
-    ship_timeline: 'Fizarany',
-    docs: 'Taratasin-dehibe',
-    docs_title: 'Taratasin-dehibe',
-    docs_upload: 'Andefaso taratasy',
-    docs_need: 'Mila taratasy.',
-    docs_ok: 'Tafadroaka ny taratasy.',
-    new_status: 'Toe-bolana vaovaо',
-    location: 'Toebinа',
-    add_event: 'Ovay ny fizarana',
-    ev_ok: 'Voatahiry ny fizarana.',
-    cust_title: 'Fanadina entana',
-    cust_new: 'Dossier vaovaо',
-    cust_none: 'Tsia',
-    cust_desc: 'Famaritana ilay entana',
-    cust_origin: 'Firenena niaviany',
-    cust_dest: 'Firenena hanalefahana',
-    cust_create: 'Sokatra',
-    cust_ok: 'Voasokatra ny ampahany',
-    cust_detail: 'Dossier fanadina',
-    cust_req: 'Taratasy takina',
-    cust_hist: 'Tantara',
-    cust_update: 'Ovao aho',
-    cust_ok_upd: 'Voavaha soa aman-tsara.',
-    cust_docs_uploaded: 'Taratasy nalefa rahateo',
-    bc_title: 'Blockchain (demo)',
-    bc_network: 'Résole',
-    bc_rpc: 'Napetraka ny RPC',
-    bc_status: 'Toe-bolana',
-    bc_note: 'Taadraka teny akando (tsy ho fatorana raha tsy napetraka ny RPC).',
-    bc_reg_title: 'Mandrafitra tenant',
-    bc_type: 'Karana (oh: taratasy)',
-    bc_data: 'Fendratra',
-    bc_save: 'Tehirizo',
-    bc_verify: 'Hanamarina',
-    bc_records: 'Firaketana',
-    bc_none: 'Tsy misy firaketana.',
-    pay_title: 'Fandoavam-bola (demo)',
-    pay_rates: 'Tavin-boaliva',
-    pay_no_rates: 'Tsy misy tavin-boaliva.',
-    pay_est_title: 'Fanaraha-toetry ny famindrana iraisam-pirenena',
-    pay_est_origin: 'Firenena niaviany',
-    pay_est_dest: 'Firenena hotatahazana',
-    pay_est_oc: 'Vola niaviany',
-    pay_est_dc: 'Vola hotatahazana',
-    pay_est_amount: 'Vola',
-    pay_est_btn: 'Manao fanaraha-toetry ny vola',
-    pay_est_fee: 'Sarany',
-    pay_est_receive: 'Voahitsakiana am kaonty',
-    pay_my: 'Fanaraha-toetry ny aho',
-    pay_none: 'Tsy misy fanaraha-toetra.',
-    pay_ref: 'Rélique',
-    pay_rate: 'Tavy',
-    my_ref: 'Rélique hers-of-store',
-    notif_title: 'Fampahafantarana',
-    notif_readall: 'Ovay fa voavaky ny daholo',
-    notif_read: 'Fanekena mitetrery',
-    notif_none: 'Tsy misy fampahafantarana.',
-    notif_read_lbl: 'voavaky',
-    notif_unread_lbl: 'tsy voavaky',
-    prof_title: 'Mpampiasa',
-    prof_save: 'Tehirizo',
-    prof_logout: 'Hivoaka',
-    prof_saved: 'Voavoa ny mpampiasa.',
-    prof_created: 'Noferina',
-    prof_lang: 'Fiteny',
-    qr_title: 'Kôdi QR hanatram-bitra',
-    qr_code: 'Ny kodinao',
-    qr_scan: 'Manany / hamokatra kôdi',
-    qr_payload: 'Kôdi voavaky',
-    qr_amount: 'Vola (MGA)',
-    qr_pay: 'Handoa',
-    qr_ok: 'Vita soa aman-tsara ny fandoavana.',
-    qr_need_to: 'Mila destinefana.',
-    q_amount_invalid: 'Tsy mety ilay vola.',
-    to_required: 'Mila destinefana.',
+    hist_title: 'Tantara', tx_title: 'Bangiaha fatorana',
+    ship_title: 'Fandefasana entana', ship_new: 'Andefaso vaovao', ship_none: 'Tsia', ship_name: 'Anarana entana',
+    ship_origin: 'Avy aho', ship_dest: 'Ho aho', ship_mode: 'Fomba', ship_carrier: 'Mpitatitra', ship_track: 'N° fanrahana',
+    ship_create: 'Tsofa', ship_ok: 'Voata-geza ny fandefasana.', ship_detail: 'Foin-daholaza', ship_route: 'Lalan-kalefahana',
+    ship_status_lbl: 'Toe-bolana', ship_mode_lbl: 'Fomba', ship_carrier_lbl: 'Mpitatitra', ship_track_lbl: 'Fanrahana',
+    ship_timeline: 'Fizarany', docs: 'Taratasin-dehibe', docs_title: 'Taratasin-dehibe', docs_upload: 'Andefaso taratasy',
+    docs_need: 'Mila taratasy.', docs_ok: 'Tafadroaka ny taratasy.', new_status: 'Toe-bolana vaovao', location: 'Toebina',
+    add_event: 'Ovay ny fizarana', ev_ok: 'Voatahiry ny fizarana.',
+    cust_title: 'Fanadina entana', cust_new: 'Dossier vaovao', cust_none: 'Tsia', cust_desc: 'Famaritana ilay entana',
+    cust_origin: 'Firenena niaviany', cust_dest: 'Firenena hanalefahana', cust_create: 'Sokatra', cust_ok: 'Voasokatra ny ampahany',
+    cust_detail: 'Dossier fanadina', cust_req: 'Taratasy takina', cust_hist: 'Tantara', cust_update: 'Ovao aho',
+    cust_ok_upd: 'Voavaha soa aman-tsara.', cust_docs_uploaded: 'Taratasy nalefa rahateo',
+    bc_title: 'Blockchain (demo)', bc_network: 'Résole', bc_rpc: 'Napetraka ny RPC', bc_status: 'Toe-bolana',
+    bc_note: 'Taadraka teny akando.', bc_reg_title: 'Mandrafitra tenant', bc_type: 'Karana (oh: taratasy)',
+    bc_data: 'Fendratra', bc_save: 'Tehirizo', bc_verify: 'Hanamarina', bc_records: 'Firaketana', bc_none: 'Tsy misy firaketana.',
+    pay_title: 'Fandoavam-bola (demo)', pay_rates: 'Tavin-boaliva', pay_no_rates: 'Tsy misy tavin-boaliva.',
+    pay_est_title: 'Fanaraha-toetry ny famindrana iraisam-pirenena', pay_est_origin: 'Firenena niaviany',
+    pay_est_dest: 'Firenena hotatahazana', pay_est_oc: 'Vola niaviany', pay_est_dc: 'Vola hotatahazana',
+    pay_est_amount: 'Vola', pay_est_btn: 'Manao fanaraha-toetry ny vola', pay_est_fee: 'Sarany',
+    pay_est_receive: 'Voahitsakiana am kaonty', pay_my: 'Fanaraha-toetry ny aho', pay_none: 'Tsy misy fanaraha-toetra.',
+    pay_ref: 'Rélique', pay_rate: 'Tavy',
+    notif_title: 'Fampahafantarana', notif_readall: 'Ovay fa voavaky ny daholo', notif_read: 'Fanekena mitetrery',
+    notif_none: 'Tsy misy fampahafantarana.', notif_read_lbl: 'voavaky', notif_unread_lbl: 'tsy voavaky',
+    prof_title: 'Mpampiasa', prof_save: 'Tehirizo', prof_logout: 'Hivoaka', prof_saved: 'Voavoa ny mpampiasa.',
+    prof_created: 'Noferina', prof_lang: 'Fiteny', prof_info: 'Mombamomba', prof_security: 'Filaminana',
+    prof_settings: 'Parametatra', prof_support: 'Fanampiana',
+    qr_title: 'Kôdi QR hanatram-bitra', qr_code: 'Ny kodinao', qr_scan: 'Manany / hamokatra kôdi',
+    qr_payload: 'Kôdi voavaky', qr_amount: 'Vola (MGA)', qr_pay: 'Handoa', qr_ok: 'Vita soa aman-tsara ny fandoavana.',
+    qr_need_to: 'Mila destinefana.', q_amount_invalid: 'Tsy mety ilay vola.', to_required: 'Mila destinefana.',
     err_unreachable: 'Tsy hamanatehozantra.',
     kind: { transfer: 'Famindrana', topup: 'Famenoana', other: 'Fihandesana' },
     modes: { maritime: 'An-drano', aerien: 'Mandehidina', terrestre: 'An-tanalana' },
     ship_statuses: { preparation: 'Fiomanana', attente_depart: 'Miandry ny fiaviany', transit: 'Teny halevina', arrive_port: 'Tonga teto', dedouanement: 'Fanadina', libere: 'Nalalaka', livraison: 'Enya ho taolady', livre: 'Nify taolady', retarde: 'Voata-hena', annule: 'Voata-geza' },
-    cust_statuses: { cree: 'Voasokatra', documents_a_fournir: 'Tsy voalahatrany taratasy', verification: 'Tari-dahavolo', formalites: "Miandry famonoana", formalites_terminees: 'Voalahatrany ny farany', clos: 'Nofenoina ny ampahany' },
+    cust_statuses: { cree: 'Voasokatra', documents_a_fournir: 'Tsy voalahatrany taratasy', verification: 'Tari-dahavolo', formalites: 'Miandry famonoana', formalites_terminees: 'Voalahatrany ny farany', clos: 'Nofenoina ny ampahany' },
+    guest_ok: 'Voasokatra ny kaonty mpitsidika (50 000 Ar — demo).',
   },
   en: {
-    guest_try: 'Try as a guest',
-    guest_ok: 'Guest account created (50 000 Ar demo balance preloaded).',
-    login: 'Sign in',
-    login_btn: 'Sign in',
-    login_email: 'E-mail',
-    login_pass: 'Password',
-    login_no_account: 'No account yet?',
-    login_reg_link: 'Create an account',
-    login_guest: 'Try as guest (demo, no signup)',
-    reg: 'Create an account',
-    reg_btn: 'Sign up',
-    reg_already: 'Already an account? Sign in',
-    reg_first: 'First name',
-    reg_last: 'Last name',
-    reg_phone: 'Phone',
-    reg_pass2: 'Confirm',
-    reg_mismatch: 'Passwords do not match.',
-    nav_dashboard: 'Dashboard',
-    nav_wallet: 'Wallet',
-    nav_transfer: 'Send',
-    nav_topup: 'Top up (demo)',
-    nav_history: 'History',
-    nav_shipments: 'Shipments',
-    nav_customs: 'Customs',
-    nav_blockchain: 'Blockchain',
-    nav_qr: 'QR Code',
-    nav_notifications: 'Notifications',
-    nav_profile: 'Profile',
-    landing_title: 'Ariary Numeric',
-    landing_sub: 'Demo digital wallet — no real money.',
+    guest_try: 'Try as a guest', guest_ok: 'Guest account created (50 000 Ar demo balance).',
+    login: 'Sign in', login_btn: 'Sign in', login_email: 'E-mail', login_pass: 'Password',
+    login_no_account: 'No account yet?', login_register_link: 'Create an account', login_guest: 'Try as guest (demo)',
+    reg: 'Create an account', reg_btn: 'Sign up', reg_already: 'Already an account? Sign in',
+    reg_first: 'First name', reg_last: 'Last name', reg_phone: 'Phone', reg_pass2: 'Confirm', reg_mismatch: 'Passwords do not match.',
+    nav_home: 'Home', nav_wallet: 'Wallet', nav_transit: 'Transit', nav_profile: 'Profile',
+    landing_title: 'Ariary Numeric', landing_sub: 'Demo digital wallet — no real money.',
     landing_desc: 'Internal transfers, shipment tracking, transit/customs, test blockchain fingerprints, international payment estimates.',
-    landing_cta_login: 'Sign in',
-    landing_cta_register: 'Create an account',
-    landing_cta_guest: 'Try as a guest',
+    landing_cta_login: 'Sign in', landing_cta_register: 'Create an account', landing_cta_guest: 'Try as a guest',
     feats_title: 'Features',
-    feats: [
-      'Demo wallet with top-up and user-to-user transfers (idempotent)',
-      'Shipment tracking with event timeline',
-      'Customs cases with document checklist and history',
-      'SHA-256 fingerprints of operations stored (test network)',
-      'International transfer estimates (demo rates)',
-      'Notifications with read / mark-all-read',
-    ],
+    feats: ['Demo wallet with top-up and user-to-user transfers (idempotent)','Shipment tracking with event timeline','Customs cases with document checklist and history','SHA-256 fingerprints of operations stored (test network)','International transfer estimates (demo rates)','Notifications with read / mark-all-read'],
     landing_warning: 'Warning: demonstration wallet, no real money. Real international transfers disabled.',
-    dash_title: 'Demo wallet',
-    dash_no_real: 'No real money.',
-    dash_notifs: 'Notifications',
-    dash_unread: 'unread',
-    dash_read: 'all read',
-    dash_recent: 'Latest operations',
-    table_ref: 'Reference',
-    table_amount: 'Amount',
-    table_type: 'Type',
-    table_status: 'Status',
-    table_date: 'Date',
-    none: 'No transactions.',
-    wallet_title: 'Wallet',
-    wallet_demo: 'Demo wallet — no real money',
-    tr_title: 'Send',
-    tr_to: 'Recipient e-mail',
-    tr_amount: 'Amount (MGA)',
-    tr_desc: 'Description (optional)',
-    tr_btn: 'Confirm transfer',
-    tr_ok: 'Transfer completed.',
-    tu_title: 'Top up (demo)',
-    tu_label: 'Amount (MGA, max 1 000 000)',
-    tu_btn: 'Top up',
-    tu_ok: 'Demo top-up done.',
+    dash_title: 'Demo wallet', dash_no_real: 'No real money.',
+    dash_notifs: 'Notifications', dash_unread: 'unread', dash_read: 'all read', dash_recent: 'Latest operations',
+    table_ref: 'Reference', table_amount: 'Amount', table_type: 'Type', table_status: 'Status', table_date: 'Date',
+    none: 'No transactions.', wallet_title: 'Wallet', wallet_demo: 'Demo wallet — no real money',
+    tr_title: 'Send', tr_to: 'Recipient e-mail', tr_amount: 'Amount (MGA)', tr_desc: 'Description (optional)',
+    tr_btn: 'Confirm transfer', tr_ok: 'Transfer completed.',
+    tu_title: 'Top up (demo)', tu_label: 'Amount (MGA, max 1 000 000)', tu_btn: 'Top up', tu_ok: 'Demo top-up done.',
     tu_note: 'Demo wallet — no real money.',
-    hist_title: 'History',
-    tx_title: 'Transaction detail',
-    ship_title: 'Shipments',
-    ship_new: 'New shipment',
-    ship_none: 'No shipments.',
-    ship_name: 'Goods name',
-    ship_origin: 'Origin',
-    ship_dest: 'Destination',
-    ship_mode: 'Mode',
-    ship_carrier: 'Carrier',
-    ship_track: 'Tracking number',
-    ship_create: 'Create',
-    ship_ok: 'Shipment created.',
-    ship_detail: 'Shipment detail',
-    ship_route: 'Route',
-    ship_status_lbl: 'Status',
-    ship_mode_lbl: 'Mode',
-    ship_carrier_lbl: 'Carrier',
-    ship_track_lbl: 'Tracking',
-    ship_timeline: 'Timeline',
-    docs: 'Documents',
-    docs_title: 'Documents',
-    docs_upload: 'Upload a document',
-    docs_need: 'File required.',
-    docs_ok: 'Document added.',
-    new_status: 'New status',
-    location: 'Location',
-    add_event: 'Add event',
-    ev_ok: 'Event added.',
-    cust_title: 'Transit & customs',
-    cust_new: 'New case',
-    cust_none: 'No case.',
-    cust_desc: 'Goods description',
-    cust_origin: 'Origin country',
-    cust_dest: 'Destination country',
-    cust_create: 'Create',
-    cust_ok: 'Case created.',
-    cust_detail: 'Customs case',
-    cust_req: 'Required documents',
-    cust_hist: 'History',
-    cust_update: 'Update',
-    cust_ok_upd: 'Updated.',
-    cust_docs_uploaded: 'Uploaded documents',
-    bc_title: 'Blockchain (test)',
-    bc_network: 'Network',
-    bc_rpc: 'RPC configured',
-    bc_status: 'Status',
-    bc_note: 'Operation fingerprints stored (not confirmed on-chain until RPC configured).',
-    bc_reg_title: 'Register a fingerprint',
-    bc_type: 'Type (e.g. document)',
-    bc_data: 'Data to fingerprint',
-    bc_save: 'Save',
-    bc_verify: 'Verify',
-    bc_records: 'Records',
-    bc_none: 'No records.',
-    pay_title: 'Payments (demo)',
-    pay_rates: 'Exchange rates',
-    pay_no_rates: 'No rates.',
-    pay_est_title: 'International transfer estimate',
-    pay_est_origin: 'Origin country',
-    pay_est_dest: 'Destination country',
-    pay_est_oc: 'Origin currency',
-    pay_est_dc: 'Destination currency',
-    pay_est_amount: 'Amount',
-    pay_est_btn: 'Estimate',
-    pay_est_fee: 'Estimated fees',
-    pay_est_receive: 'Estimated amount received',
-    pay_my: 'My estimates',
-    pay_none: 'No estimate.',
-    pay_ref: 'Ref',
-    pay_rate: 'Rate',
-    my_ref: 'My reference / recipient',
-    notif_title: 'Notifications',
-    notif_readall: 'Mark all as read',
-    notif_read: 'Mark as read',
-    notif_none: 'No notification.',
-    notif_read_lbl: 'read',
-    notif_unread_lbl: 'unread',
-    prof_title: 'Profile',
-    prof_save: 'Save',
-    prof_logout: 'Sign out',
-    prof_saved: 'Profile updated.',
-    prof_created: 'created on',
-    prof_lang: 'Language',
-    qr_title: 'Reception QR code',
-    qr_code: 'Your code',
-    qr_scan: 'Scan / enter a code',
-    qr_payload: 'Scanned payload',
-    qr_amount: 'Amount (MGA)',
-    qr_pay: 'Pay',
-    qr_ok: 'Payment done.',
-    qr_need_to: 'Recipient required.',
-    q_amount_invalid: 'Invalid amount.',
-    to_required: 'Recipient required.',
+    hist_title: 'History', tx_title: 'Transaction detail',
+    ship_title: 'Shipments', ship_new: 'New shipment', ship_none: 'No shipments.', ship_name: 'Goods name',
+    ship_origin: 'Origin', ship_dest: 'Destination', ship_mode: 'Mode', ship_carrier: 'Carrier', ship_track: 'Tracking number',
+    ship_create: 'Create', ship_ok: 'Shipment created.', ship_detail: 'Shipment detail', ship_route: 'Route',
+    ship_status_lbl: 'Status', ship_mode_lbl: 'Mode', ship_carrier_lbl: 'Carrier', ship_track_lbl: 'Tracking',
+    ship_timeline: 'Timeline', docs: 'Documents', docs_title: 'Documents', docs_upload: 'Upload a document',
+    docs_need: 'File required.', docs_ok: 'Document added.', new_status: 'New status', location: 'Location',
+    add_event: 'Add event', ev_ok: 'Event added.',
+    cust_title: 'Transit & customs', cust_new: 'New case', cust_none: 'No case.', cust_desc: 'Goods description',
+    cust_origin: 'Origin country', cust_dest: 'Destination country', cust_create: 'Create', cust_ok: 'Case created.',
+    cust_detail: 'Customs case', cust_req: 'Required documents', cust_hist: 'History', cust_update: 'Update',
+    cust_ok_upd: 'Updated.', cust_docs_uploaded: 'Uploaded documents',
+    bc_title: 'Blockchain (test)', bc_network: 'Network', bc_rpc: 'RPC configured', bc_status: 'Status',
+    bc_note: 'Operation fingerprints stored (test network).',
+    bc_reg_title: 'Register a fingerprint', bc_type: 'Type (e.g. document)', bc_data: 'Data to fingerprint',
+    bc_save: 'Save', bc_verify: 'Verify', bc_records: 'Records', bc_none: 'No records.',
+    pay_title: 'Payments (demo)', pay_rates: 'Exchange rates', pay_no_rates: 'No rates.',
+    pay_est_title: 'International transfer estimate', pay_est_origin: 'Origin country',
+    pay_est_dest: 'Destination country', pay_est_oc: 'Origin currency', pay_est_dc: 'Destination currency',
+    pay_est_amount: 'Amount', pay_est_btn: 'Estimate', pay_est_fee: 'Estimated fees',
+    pay_est_receive: 'Estimated amount received', pay_my: 'My estimates', pay_none: 'No estimate.',
+    pay_ref: 'Ref', pay_rate: 'Rate',
+    notif_title: 'Notifications', notif_readall: 'Mark all as read', notif_read: 'Mark as read',
+    notif_none: 'No notification.', notif_read_lbl: 'read', notif_unread_lbl: 'unread',
+    prof_title: 'Profile', prof_save: 'Save', prof_logout: 'Sign out', prof_saved: 'Profile updated.',
+    prof_created: 'created on', prof_lang: 'Language', prof_info: 'Personal info', prof_security: 'Security',
+    prof_settings: 'Settings', prof_support: 'Support',
+    qr_title: 'Reception QR code', qr_code: 'Your code', qr_scan: 'Scan / enter a code',
+    qr_payload: 'Scanned payload', qr_amount: 'Amount (MGA)', qr_pay: 'Pay', qr_ok: 'Payment done.',
+    qr_need_to: 'Recipient required.', q_amount_invalid: 'Invalid amount.', to_required: 'Recipient required.',
     err_unreachable: 'Server unreachable.',
     kind: { transfer: 'Transfer', topup: 'Top-up', other: 'Operation' },
     modes: { maritime: 'Sea', aerien: 'Air', terrestre: 'Land' },
     ship_statuses: { preparation: 'Preparation', attente_depart: 'Awaiting departure', transit: 'In transit', arrive_port: 'Arrived', dedouanement: 'Customs clearance', libere: 'Released', livraison: 'Out for delivery', livre: 'Delivered', retarde: 'Delayed', annule: 'Cancelled' },
     cust_statuses: { cree: 'Case created', documents_a_fournir: 'Documents to provide', verification: 'Documents under review', formalites: 'Awaiting formalities', formalites_terminees: 'Formalities completed', clos: 'Case closed' },
+    guest_ok: 'Guest account created (50 000 Ar demo balance).',
   },
 };
 
-function t(key) {
-  const L = I18N[lang] || I18N.fr;
-  if (Object.prototype.hasOwnProperty.call(L, key)) return L[key];
-  if (Object.prototype.hasOwnProperty.call(I18N.fr, key)) return I18N.fr[key];
-  return key;
-}
-function tmap(key, k, fallback) {
-  const L = I18N[lang] || I18N.fr;
-  const grp = (L && L[key]) || I18N.fr[key] || {};
-  return grp[k] !== undefined ? grp[k] : (fallback !== undefined ? fallback : k);
-}
+function t(key) { const L = I18N[lang] || I18N.fr; if (Object.prototype.hasOwnProperty.call(L, key)) return L[key]; if (Object.prototype.hasOwnProperty.call(I18N.fr, key)) return I18N.fr[key]; return key; }
+function tmap(key, k, fallback) { const L = I18N[lang] || I18N.fr; const grp = (L && L[key]) || I18N.fr[key] || {}; return grp[k] !== undefined ? grp[k] : (fallback !== undefined ? fallback : k); }
 function setLang(l, syncServer=true) {
   if (!I18N[l]) l = 'fr';
-  lang = l;
-  localStorage.setItem('lang', l);
+  lang = l; localStorage.setItem('lang', l);
   document.getElementById('langSel').value = l;
   document.documentElement.lang = l;
-  buildNav(); if (user) setUserLabel();;
+  buildNav(); if (user) setUserLabel();
   if (currentView) view(currentView); else viewLanding();
   if (user && syncServer) api('PATCH', '/accounts/me/', { preferred_language: l });
-  matchLang();
 }
-function matchLang() {
-  const sel = document.getElementById('langSel');
-  sel.onchange = () => setLang(sel.value);
-}
+function matchLang() { const sel = document.getElementById('langSel'); sel.onchange = () => setLang(sel.value); }
 
-function fmt(n) {
-  if (n === undefined || n === null) return '—';
-  const x = Number(n);
-  if (isNaN(x)) return String(n);
-  try { return x.toLocaleString(lang === 'en' ? 'en-GB' : 'fr-FR') + ' Ar'; } catch (e) { return x + ' Ar'; }
-}
-
+function fmt(n) { if (n === undefined || n === null) return '—'; const x = Number(n); if (isNaN(x)) return String(n); try { return x.toLocaleString(lang === 'en' ? 'en-GB' : 'fr-FR') + ' Ar'; } catch (e) { return x + ' Ar'; } }
 function headers() { const h = {'Content-Type':'application/json'}; if (token) h['Authorization'] = 'Token ' + token; return h; }
 async function api(method, path, body) {
   try {
@@ -971,42 +614,20 @@ async function api(method, path, body) {
     return { status: r.status, data };
   } catch (e) { return { status: 0, data: t('err_unreachable') }; }
 }
-function msg(text, ok=true) {
-  const d = document.createElement('div');
-  d.className = 'msg ' + (ok ? 'ok' : 'err');
-  d.textContent = text;
-  return d;
-}
+function msg(text, ok=true) { const d = document.createElement('div'); d.className='msg ' + (ok ? 'ok' : 'err'); d.textContent = text; return d; }
 function clearMain() { document.getElementById('main').innerHTML = ''; }
-function showNav(show) { document.getElementById('nav').classList.toggle('hidden', !show); }
-function setUserLabel() { document.getElementById('userLabel').textContent = user ? ((user.first_name || user.email) + ' — demo') : t('guest_try'); }
-
-async function downloadAuth(path, filename) {
-  try {
-    const r = await fetch(API + path, { headers: token ? {'Authorization':'Token '+token} : {} });
-    if (!r.ok) { alert(fmtErr({status:r.status,data:await r.text()})); return; }
-    const blob = await r.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = filename || 'document'; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  } catch (e) { alert(t('err_unreachable')); }
-}
-
+function showNav(show) { /* bottom nav always visible when logged in */ document.getElementById('nav').classList.toggle('hidden', !show); }
+function setUserLabel() { document.getElementById('userLabel').textContent = user ? (user.first_name || user.email) : 'Invité'; }
 function fmtErr(res) {
   if (!res || res.status === 0) return t('err_unreachable');
   const d = res.data;
   if (typeof d === 'string') return d;
   if (d && d.detail) return d.detail;
   if (d && d.message) return d.message;
-  if (d && typeof d === 'object') {
-    return Object.entries(d).map(([k,v]) => Array.isArray(v) ? k+': '+v.join(', ') : k+': '+v).join(' | ');
-  }
+  if (d && typeof d === 'object') { return Object.entries(d).map(([k,v]) => Array.isArray(v) ? k+': '+v.join(', ') : k+': '+v).join(' | '); }
   return 'HTTP ' + res.status;
 }
-
-function paginateToItems(res) {
-  return (res && res.data && res.data.results) ? res.data.results : (Array.isArray(res && res.data) ? res.data : []);
-}
+function paginateToItems(res) { return (res && res.data && res.data.results) ? res.data.results : (Array.isArray(res && res.data) ? res.data : []); }
 
 // ---------- Landing ----------
 function viewLanding() {
@@ -1018,63 +639,24 @@ function viewLanding() {
     <div class="content">
       <h1>${t('landing_title')}</h1>
       <p>${t('landing_sub')}</p>
-      <p style="color:rgba(255,255,255,.75);margin-bottom:24px;font-size:14px">${t('landing_desc')}</p>
+      <p style="color:var(--muted);margin-bottom:16px;font-size:13px">${t('landing_desc')}</p>
       <div class="cta">
-        <button class="primary" id="goLogin" data-action="login" style="background:#fff;color:var(--primary)" onclick="viewLogin()">${icon('user')} ${t('landing_cta_login')}</button>
-        <button class="primary" id="goReg" data-action="register" style="background:var(--accent);color:#0A2540" onclick="viewRegister()">${icon('plus')} ${t('landing_cta_register')}</button>
-        <button class="ghost" id="goGuest" data-action="guest" style="background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)" onclick="guestLogin(document.querySelector('.hero'))">${icon('send')} ${t('landing_cta_guest')}</button>
+        <button class="primary" id="goLogin">${icon('user')} ${t('landing_cta_login')}</button>
+        <button class="primary secondary" id="goReg">${icon('plus')} ${t('landing_cta_register')}</button>
+        <button class="ghost" id="goGuest">${icon('send')} ${t('landing_cta_guest')}</button>
       </div>
-    </div>
-    <svg class="illustration" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00D4AA"/><stop offset="1" stop-color="#635BFF"/></linearGradient>
-        <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset="1" stop-color="#ffffff" stop-opacity=".4"/></linearGradient>
-      </defs>
-      <rect x="130" y="40" width="140" height="240" rx="22" fill="url(#g2)" stroke="rgba(255,255,255,.6)" stroke-width="2"/>
-      <rect x="142" y="60" width="116" height="180" rx="8" fill="rgba(10,37,64,.85)"/>
-      <circle cx="200" cy="52" r="3" fill="rgba(255,255,255,.6)"/>
-      <rect x="150" y="72" width="100" height="14" rx="4" fill="rgba(255,255,255,.12)"/>
-      <text x="156" y="83" font-size="9" fill="#00D4AA" font-family="Inter,sans-serif" font-weight="700">Ariary Numeric</text>
-      <text x="156" y="108" font-size="18" fill="#fff" font-family="Inter,sans-serif" font-weight="800">150 000 Ar</text>
-      <text x="156" y="122" font-size="8" fill="rgba(255,255,255,.6)" font-family="Inter,sans-serif">Portefeuille démo</text>
-      <rect x="150" y="138" width="46" height="30" rx="6" fill="rgba(0,212,170,.3)"/>
-      <rect x="204" y="138" width="46" height="30" rx="6" fill="rgba(99,91,255,.3)"/>
-      <rect x="150" y="176" width="100" height="8" rx="3" fill="rgba(255,255,255,.1)"/>
-      <rect x="150" y="190" width="70" height="8" rx="3" fill="rgba(255,255,255,.1)"/>
-      <rect x="150" y="204" width="85" height="8" rx="3" fill="rgba(255,255,255,.1)"/>
-      <rect x="20" y="90" width="95" height="60" rx="12" fill="url(#g1)" opacity=".9" transform="rotate(-12 67 120)"/>
-      <text x="30" y="118" font-size="10" fill="#fff" font-family="Inter,sans-serif" font-weight="700" transform="rotate(-12 67 120)">VISA</text>
-      <text x="30" y="135" font-size="8" fill="rgba(255,255,255,.8)" font-family="Inter,sans-serif" transform="rotate(-12 67 120)">•••• 4242</text>
-      <rect x="285" y="170" width="90" height="56" rx="12" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-      <text x="295" y="195" font-size="9" fill="#fff" font-family="Inter,sans-serif" font-weight="700">QR Pay</text>
-      <rect x="295" y="202" width="20" height="20" rx="3" fill="rgba(255,255,255,.6)"/>
-      <rect x="321" y="202" width="20" height="20" rx="3" fill="rgba(255,255,255,.6)"/>
-      <rect x="295" y="228" width="20" height="20" rx="3" fill="rgba(255,255,255,.6)"/>
-      <rect x="321" y="228" width="20" height="20" rx="3" fill="rgba(255,255,255,.6)"/>
-      <circle cx="60" cy="230" r="18" fill="url(#g1)" opacity=".85"/>
-      <text x="60" y="235" text-anchor="middle" font-size="11" fill="#fff" font-family="Inter,sans-serif" font-weight="800">Ar</text>
-      <circle cx="350" cy="90" r="14" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>
-      <text x="350" y="95" text-anchor="middle" font-size="9" fill="#fff" font-family="Inter,sans-serif" font-weight="700">Ar</text>
-    </svg>
-  </div>`;
+    </div>`;
   main.appendChild(hero);
   const feats = document.createElement('div'); feats.className='card';
   feats.innerHTML = `<h3 class="title">${t('feats_title')}</h3>
     <div class="feat-grid">
-      ${t('feats').map((x,i) => {
-        const ics = ['wallet','send','package','shield','trending-up','bell'];
-        return `<div class="feat"><div class="ic">${icon(ics[i%ics.length])}</div><h4>${x.split(':')[0]||x}</h4><p>${x}</p></div>`;
-      }).join('')}
+      ${t('feats').map((x,i) => { const ics = ['wallet','send','package','shield','trending-up','bell']; return `<div class="feat"><div class="ic">${icon(ics[i%ics.length])}</div><h4>${x}</h4></div>`; }).join('')}
     </div>
-    <p class="muted" style="margin-top:14px">${t('landing_warning')}</p>`;
+    <p class="muted" style="margin-top:12px;font-size:12px">${t('landing_warning')}</p>`;
   main.appendChild(feats);
   document.getElementById('goLogin').addEventListener('click', () => viewLogin());
   document.getElementById('goReg').addEventListener('click', () => viewRegister());
   document.getElementById('goGuest').addEventListener('click', () => guestLogin(hero));
-  window.__landingOnclickSet = true;
-  console.log('onclick set, goGuest=', !!document.getElementById('goGuest').onclick);
-  window.__landingOnclickSet = true;
-  console.log('onclick set, goGuest=', !!document.getElementById('goGuest').onclick);
 }
 
 async function guestLogin(container) {
@@ -1090,117 +672,169 @@ async function guestLogin(container) {
 
 // ---------- Auth ----------
 function viewLogin() {
-  clearMain();
-  currentView = 'login';
+  clearMain(); currentView = 'login';
   const box = document.createElement('div'); box.className='login-box card';
   box.innerHTML = `
     <h2 class="title">${t('login')}</h2>
+    <p class="subtitle">${t('login_no_account')} <a href="#" id="go_reg" class="link">${t('login_register_link')}</a></p>
     <label>${t('login_email')}</label><input id="l_email" type="email" autocomplete="username">
     <label>${t('login_pass')}</label><input id="l_pass" type="password" autocomplete="current-password">
-    <div style="margin-top:12px"><button class="primary" id="l_btn">${t('login_btn')}</button></div>
-    <div style="margin-top:10px"><button class="ghost" id="l_guest" style="width:100%">${t('login_guest')}</button></div>
-    <p class="muted" style="margin-top:12px">${t('login_no_account')} <a href="#" id="go_reg">${t('login_reg_link')}</a></p>`;
-  document.getElementById('main').appendChild(box);document.getElementById('l_btn').addEventListener('click', async () => {
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button class="primary" id="l_btn" style="flex:1">${t('login_btn')}</button>
+      <button class="ghost" id="l_guest">${t('login_guest')}</button>
+    </div>`;
+  document.getElementById('main').appendChild(box);
+  document.getElementById('l_btn').addEventListener('click', async () => {
     const res = await api('POST','/accounts/login/', { email: document.getElementById('l_email').value, password: document.getElementById('l_pass').value });
     if (res.status === 200) { token = res.data.token; user = res.data.user; localStorage.setItem('token',token); localStorage.setItem('user',JSON.stringify(user)); if (user.preferred_language) setLang(user.preferred_language, false); setUserLabel(); showNav(true); view('dashboard'); }
     else { box.appendChild(msg(fmtErr(res), false)); }
-  });document.getElementById('l_guest').addEventListener('click', async () => { await guestLogin(box); });document.getElementById('go_reg').addEventListener('click', (e) => { e.preventDefault(); viewRegister(); });
+  });
+  document.getElementById('l_guest').addEventListener('click', async () => { await guestLogin(box); });
+  document.getElementById('go_reg').addEventListener('click', (e) => { e.preventDefault(); viewRegister(); });
 }
 function viewRegister() {
-  clearMain();
-  currentView = 'register';
+  clearMain(); currentView = 'register';
   const box = document.createElement('div'); box.className='login-box card';
   box.innerHTML = `
     <h2 class="title">${t('reg')}</h2>
+    <p class="subtitle">${t('reg_already')} <a href="#" id="go_log" class="link">${t('login')}</a></p>
     <label>${t('login_email')}</label><input id="r_email" type="email">
     <label>${t('reg_first')}</label><input id="r_first">
     <label>${t('reg_last')}</label><input id="r_last">
     <label>${t('reg_phone')}</label><input id="r_phone">
     <label>${t('login_pass')}</label><input id="r_pass" type="password">
     <label>${t('reg_pass2')}</label><input id="r_pass2" type="password">
-    <div style="margin-top:12px"><button class="primary" id="r_btn">${t('reg_btn')}</button></div>
-    <p class="muted" style="margin-top:12px"><a href="#" id="go_log">${t('reg_already')}</a></p>`;
-  document.getElementById('main').appendChild(box);document.getElementById('r_btn').addEventListener('click', async () => {
+    <div style="margin-top:16px"><button class="primary" id="r_btn" style="width:100%">${t('reg_btn')}</button></div>`;
+  document.getElementById('main').appendChild(box);
+  document.getElementById('r_btn').addEventListener('click', async () => {
     const p = document.getElementById('r_pass').value, p2 = document.getElementById('r_pass2').value;
     if (p !== p2) { box.appendChild(msg(t('reg_mismatch'), false)); return; }
     const res = await api('POST','/accounts/register/', { email: document.getElementById('r_email').value, password: p, password_confirm: p2, first_name: document.getElementById('r_first').value, last_name: document.getElementById('r_last').value, phone: document.getElementById('r_phone').value, country: 'Madagascar' });
     if (res.status === 201 || res.status === 200) { token = res.data.token; user = res.data.user; localStorage.setItem('token',token); localStorage.setItem('user',JSON.stringify(user)); setUserLabel(); showNav(true); view('dashboard'); }
     else { box.appendChild(msg(fmtErr(res), false)); }
-  });document.getElementById('go_log').addEventListener('click', (e) => { e.preventDefault(); viewLogin(); });
+  });
+  document.getElementById('go_log').addEventListener('click', (e) => { e.preventDefault(); viewLogin(); });
 }
 
-// ---------- Dashboard ----------
+// ---------- Dashboard (Accueil) ----------
 async function viewDashboard() {
-  clearMain();
-  currentView = 'dashboard';
+  clearMain(); currentView = 'dashboard';
   const main = document.getElementById('main');
   const w = await api('GET','/wallet/wallet/');
   const n = await api('GET','/notifications/');
   const items = paginateToItems(n);
   const unread = items.filter(x=>!x.is_read).length;
+  // Demo banner
+  const banner = document.createElement('div'); banner.className='demo-banner';
+  banner.innerHTML = `<span class="ic">⚠️</span><span><strong>Portefeuille de démonstration</strong> — aucun argent réel. Les crédits ajoutés ici ne sont pas des dépôts bancaires.</span>`;
+  main.appendChild(banner);
+  // Balance card
   const card = document.createElement('div'); card.className='balance-card';
-  card.innerHTML = `<div style="background:rgba(255,255,255,.18);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px">
-      <span>⚠️</span><span>Portefeuille de démonstration — aucun argent réel. Les crédits ajoutés ici ne sont pas des dépôts bancaires.</span>
-    </div>
+  card.innerHTML = `<div class="demo-tag">Démo</div>
     <div class="label">${t('dash_title')}</div>
-    <div class="value">${fmt(w.data && w.data.balance)} ${w.data ? w.data.currency : ''}</div>
-    <div class="sub">${t('dash_no_real')} · ${t('dash_notifs')}: ${unread} ${unread ? t('dash_unread') : t('dash_read')}</div>`;
+    <div class="value">${fmt(w.data && w.data.balance)} <span style="font-size:16px;opacity:.7">${w.data ? w.data.currency : ''}</span></div>
+    <div class="sub">${t('dash_no_real')}</div>`;
   main.appendChild(card);
-  // dernières opérations (aperçu)
+  // Quick actions
+  const qa = document.createElement('div'); qa.className='quick-actions';
+  const qitems = [
+    [t('nav_transfer')||'Envoyer','transfer','send'],[t('nav_topup')||'Recharger','topup','trending-up'],
+    ['Recevoir','qr','qr-code'],['Historique','history','credit-card'],
+  ];
+  qitems.forEach(([l,v,ic]) => {
+    const b = document.createElement('button'); b.className='quick-action';
+    b.innerHTML = `<span class="ic">${icon(ic)}</span><span>${l}</span>`;
+    b.addEventListener('click', () => view(v)); qa.appendChild(b);
+  });
+  main.appendChild(qa);
+  // Recent transactions
   const r = await api('GET','/wallet/transactions/');
   const txs = paginateToItems(r).slice(0,5);
-  if (txs.length) {
-    const c2 = document.createElement('div'); c2.className='card';
-    c2.innerHTML = `<h3 class="title">${t('dash_recent')}</h3>`;
+  const c2 = document.createElement('div'); c2.className='card';
+  c2.innerHTML = `<h3 class="title">${t('dash_recent')}</h3>`;
+  if (!txs.length) {
+    c2.innerHTML += `<div class="empty"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.2" style="opacity:.4;margin-bottom:8px"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M6 14h2"/></svg><h4>${t('none')}</h4><p>${t('dash_no_real')}</p><button class="primary" onclick="view('topup')">${icon('plus')} ${t('nav_topup')}</button></div>`;
+  } else {
     const tbl = document.createElement('table'); tbl.innerHTML = `<tr><th>${t('table_ref')}</th><th>${t('table_amount')}</th><th>${t('table_type')}</th><th>${t('table_status')}</th><th>${t('table_date')}</th></tr>`;
     txs.forEach(x => {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${String(x.reference).slice(0,8)}</td><td>${fmt(x.amount)}</td><td>${tmap('kind', x.kind, x.kind)}</td><td><span class="badge ${x.status==='completed'?'success':''}">${x.status}</span></td><td>${(x.created_at||'').slice(0,19).replace('T',' ')}</td>`;
-      tr.style.cursor='pointer';tr.addEventListener('click', () => { localStorage.setItem('selected_tx', x.reference); view('txdetail'); });
+      tr.style.cursor='pointer'; tr.addEventListener('click', () => { localStorage.setItem('selected_tx', x.reference); view('txdetail'); });
       tbl.appendChild(tr);
     });
-    c2.appendChild(tbl); main.appendChild(c2);
-  } else {
-    const empty = document.createElement('div'); empty.className='card empty';
-    empty.innerHTML = `<svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5;margin-bottom:8px">
-      <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><path d="M6 14h2"/></svg>
-      <h4>${t('none')}</h4><p>${t('dash_no_real')}</p>
-      <button class="primary" onclick="view('topup')">${icon('plus')} ${t('nav_topup')}</button>`;
-    main.appendChild(empty);
+    c2.appendChild(tbl);
   }
-  const tiles = document.createElement('div'); tiles.className='tile-grid';
-  const btnlist = [
-    [t('nav_transfer'),'transfer','send'],[t('nav_topup'),'topup','trending-up'],[t('nav_history'),'history','credit-card'],
-    [t('nav_shipments'),'shipments','package'],[t('nav_customs'),'customs','file-text'],[t('nav_blockchain'),'blockchain','shield'],
-    ['Paiements','payments','credit-card'],['Notifications','notifications','bell'],[t('nav_profile'),'profile','user'],
+  main.appendChild(c2);
+  // Secondary services
+  const svc = document.createElement('div'); svc.className='card';
+  svc.innerHTML = `<h3 class="title">Services</h3>`;
+  const svcGrid = document.createElement('div'); svcGrid.className='feat-grid';
+  const svcItems = [
+    ['Transferts internationaux','payments','globe'],['Blockchain','blockchain','shield'],['Assistance','profile','user'],
   ];
-  btnlist.forEach(([l,v,ic]) => {
-    const b = document.createElement('button'); b.className='tile';
-    b.innerHTML = `<span class="ic">${icon(ic)}</span><span>${l}</span>`;b.addEventListener('click', () => view(v)); tiles.appendChild(b);
+  svcItems.forEach(([l,v,ic]) => {
+    const f = document.createElement('div'); f.className='feat';
+    f.innerHTML = `<div class="ic">${icon(ic)}</div><h4>${l}</h4>`;
+    f.addEventListener('click', () => view(v)); f.style.cursor='pointer';
+    svcGrid.appendChild(f);
   });
-  main.appendChild(tiles);
+  svc.appendChild(svcGrid); main.appendChild(svc);
+  // Notifications badge
+  if (unread > 0) {
+    const nb = document.createElement('div'); nb.className='card';
+    nb.style.cursor='pointer';
+    nb.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">🔔</span><div><b>${unread} ${t('dash_unread')}</b><br><span class="muted">${t('dash_notifs')}</span></div><span style="margin-left:auto">${icon('arrow-right')}</span></div>`;
+    nb.addEventListener('click', () => view('notifications'));
+    main.appendChild(nb);
+  }
 }
 
-// ---------- Wallet ----------
+// ---------- Wallet (Portefeuille) ----------
 async function viewWallet() {
-  clearMain();
-  currentView = 'wallet';
+  clearMain(); currentView = 'wallet';
   const main = document.getElementById('main');
   const w = await api('GET','/wallet/wallet/');
-  const tx = await api('GET','/wallet/transactions/');
-  const card = document.createElement('div'); card.className='card';
-  card.innerHTML = `<h3 class="title">${t('wallet_title')}</h3><p style="font-size:22px;font-weight:700;color:var(--primary)">${fmt(w.data && w.data.balance)} ${w.data ? w.data.currency : ''}</p><p class="muted">${t('wallet_demo')}</p>`;
+  const card = document.createElement('div'); card.className='balance-card';
+  card.innerHTML = `<div class="demo-tag">Démo</div>
+    <div class="label">${t('wallet_title')}</div>
+    <div class="value">${fmt(w.data && w.data.balance)} <span style="font-size:16px;opacity:.7">${w.data ? w.data.currency : ''}</span></div>
+    <div class="sub">${t('wallet_demo')}</div>`;
   main.appendChild(card);
+  // Quick actions
+  const qa = document.createElement('div'); qa.className='quick-actions';
+  const qitems = [
+    [t('tr_title')||'Envoyer','transfer','send'],[t('tu_title')||'Recharger','topup','trending-up'],
+    ['Recevoir','qr','qr-code'],[t('hist_title')||'Historique','history','credit-card'],
+  ];
+  qitems.forEach(([l,v,ic]) => {
+    const b = document.createElement('button'); b.className='quick-action';
+    b.innerHTML = `<span class="ic">${icon(ic)}</span><span>${l}</span>`;
+    b.addEventListener('click', () => view(v)); qa.appendChild(b);
+  });
+  main.appendChild(qa);
+  // International transfers
+  const intl = document.createElement('div'); intl.className='card';
+  intl.innerHTML = `<h3 class="title">Transferts internationaux</h3><p class="muted" style="margin-bottom:12px">Estimation de transferts vers l'étranger (taux démo)</p>
+    <button class="primary secondary" onclick="view('payments')">${icon('globe')} Estimer un transfert</button>`;
+  main.appendChild(intl);
+  // Blockchain
+  const bc = document.createElement('div'); bc.className='card';
+  bc.innerHTML = `<h3 class="title">Blockchain (test)</h3><p class="muted" style="margin-bottom:12px">Empreintes SHA-256 des opérations</p>
+    <button class="primary secondary" onclick="view('blockchain')">${icon('shield')} Voir les empreintes</button>`;
+  main.appendChild(bc);
+  // Recent transactions
+  const tx = await api('GET','/wallet/transactions/');
+  const items = paginateToItems(tx);
   const c2 = document.createElement('div'); c2.className='card';
   c2.innerHTML = `<h3 class="title">${t('dash_recent')}</h3>`;
-  const items = paginateToItems(tx);
-  if (!items.length) c2.appendChild(document.createTextNode(t('none')));
-  else {
+  if (!items.length) {
+    c2.innerHTML += `<div class="empty"><h4>${t('none')}</h4><p>${t('wallet_demo')}</p><button class="primary" onclick="view('topup')">${icon('plus')} ${t('tu_title')}</button></div>`;
+  } else {
     const tbl = document.createElement('table'); tbl.innerHTML = `<tr><th>${t('table_ref')}</th><th>${t('table_amount')}</th><th>${t('table_type')}</th><th>${t('table_status')}</th><th>${t('table_date')}</th></tr>`;
     items.slice(0,10).forEach(x => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${String(x.reference).slice(0,8)}</td><td>${fmt(x.amount)}</td><td>${tmap('kind', x.kind, x.kind)}</td><td>${x.status}</td><td>${(x.created_at||'').slice(0,19).replace('T',' ')}</td>`;
-      tr.style.cursor='pointer';tr.addEventListener('click', () => { localStorage.setItem('selected_tx', x.reference); view('txdetail'); });
+      tr.innerHTML = `<td>${String(x.reference).slice(0,8)}</td><td>${fmt(x.amount)}</td><td>${tmap('kind', x.kind, x.kind)}</td><td><span class="badge ${x.status==='completed'?'success':''}">${x.status}</span></td><td>${(x.created_at||'').slice(0,19).replace('T',' ')}</td>`;
+      tr.style.cursor='pointer'; tr.addEventListener('click', () => { localStorage.setItem('selected_tx', x.reference); view('txdetail'); });
       tbl.appendChild(tr);
     });
     c2.appendChild(tbl);
@@ -1210,16 +844,16 @@ async function viewWallet() {
 
 // ---------- Transfer ----------
 async function viewTransfer() {
-  clearMain();
-  currentView = 'transfer';
+  clearMain(); currentView = 'transfer';
   const main = document.getElementById('main');
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<h3 class="title">${t('tr_title')}</h3>
     <label>${t('tr_to')}</label><input id="tr_to">
     <label>${t('tr_amount')}</label><input id="tr_amt" type="number" min="1">
     <label>${t('tr_desc')}</label><input id="tr_desc">
-    <div style="margin-top:12px"><button class="primary" id="tr_btn">${t('tr_btn')}</button></div>`;
-  main.appendChild(card);document.getElementById('tr_btn').addEventListener('click', async () => {
+    <div style="margin-top:16px"><button class="primary" id="tr_btn" style="width:100%">${t('tr_btn')}</button></div>`;
+  main.appendChild(card);
+  document.getElementById('tr_btn').addEventListener('click', async () => {
     const val = parseFloat(document.getElementById('tr_amt').value);
     if (isNaN(val) || val <= 0) { card.appendChild(msg(t('q_amount_invalid'), false)); return; }
     const to = document.getElementById('tr_to').value.trim();
@@ -1232,18 +866,14 @@ async function viewTransfer() {
 
 // ---------- Topup ----------
 async function viewTopup() {
-  clearMain();
-  currentView = 'topup';
+  clearMain(); currentView = 'topup';
   const main = document.getElementById('main');
   const card = document.createElement('div'); card.className='card';
-  card.innerHTML = `<div style="background:#FFF3E0;border:1px solid #FFE082;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#795548;line-height:1.5">
-      <b>⚠️ Portefeuille de démonstration</b><br>
-      L'argent affiché ici n'est pas réel. Aucun dépôt bancaire ni retrait réel n'est possible. Ces crédits servent uniquement à tester l'application.
-    </div>
+  card.innerHTML = `<div class="demo-banner"><span class="ic">⚠️</span><div><strong>Portefeuille de démonstration</strong> — cet argent n'est pas réel. Aucun dépôt bancaire ni retrait réel n'est effectué.</div></div>
     <h3 class="title">${t('tu_title')}</h3>
     <p class="muted" style="margin-bottom:12px">${t('tu_note')}</p>
     <label>${t('tu_label')}</label><input id="tu_amt" type="number" value="50000" min="1" max="1000000">
-    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
       <button class="primary" id="tu_btn">${t('tu_btn')}</button>
       <button class="ghost" id="tu_quick">+50 000 Ar (démo)</button>
     </div>`;
@@ -1264,20 +894,20 @@ async function viewTopup() {
 
 // ---------- History ----------
 async function viewHistory() {
-  clearMain();
-  currentView = 'history';
+  clearMain(); currentView = 'history';
   const main = document.getElementById('main');
   const tx = await api('GET','/wallet/transactions/');
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<h3 class="title">${t('hist_title')}</h3>`;
   const items = paginateToItems(tx);
-  if (!items.length) card.appendChild(document.createTextNode(t('none')));
-  else {
+  if (!items.length) {
+    card.innerHTML += `<div class="empty"><h4>${t('none')}</h4><p>${t('wallet_demo')}</p><button class="primary" onclick="view('topup')">${icon('plus')} ${t('tu_title')}</button></div>`;
+  } else {
     const tbl = document.createElement('table'); tbl.innerHTML = `<tr><th>${t('table_ref')}</th><th>${t('table_amount')}</th><th>${t('table_type')}</th><th>${t('table_status')}</th><th>${t('table_date')}</th></tr>`;
     items.forEach(x => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${String(x.reference).slice(0,8)}</td><td>${fmt(x.amount)}</td><td>${tmap('kind', x.kind, x.kind)}</td><td>${x.status}</td><td>${(x.created_at||'').slice(0,19).replace('T',' ')}</td>`;
-      tr.style.cursor='pointer';tr.addEventListener('click', () => { localStorage.setItem('selected_tx', x.reference); view('txdetail'); });
+      tr.innerHTML = `<td>${String(x.reference).slice(0,8)}</td><td>${fmt(x.amount)}</td><td>${tmap('kind', x.kind, x.kind)}</td><td><span class="badge ${x.status==='completed'?'success':''}">${x.status}</span></td><td>${(x.created_at||'').slice(0,19).replace('T',' ')}</td>`;
+      tr.style.cursor='pointer'; tr.addEventListener('click', () => { localStorage.setItem('selected_tx', x.reference); view('txdetail'); });
       tbl.appendChild(tr);
     });
     card.appendChild(tbl);
@@ -1287,58 +917,86 @@ async function viewHistory() {
 
 // ---------- Tx detail ----------
 async function viewTxdetail() {
-  clearMain();
-  currentView = 'txdetail';
+  clearMain(); currentView = 'txdetail';
   const main = document.getElementById('main');
   const ref = localStorage.getItem('selected_tx');
   const r = await api('GET','/wallet/transactions/'+ref+'/');
   const card = document.createElement('div'); card.className='card';
   if (r.status === 200) {
     const labels = {reference:t('table_ref'),sender_email:'De',recipient_email:'À',amount:t('table_amount'),fee:'Frais',currency:'Devise',kind:t('table_type'),status:t('table_status'),description:'Description',created_at:'Créé le',completed_at:'Terminé le'};
-    const d = r.data; const isOut = user && d.sender_email === user.email;
     card.innerHTML = `<h3 class="title">${t('tx_title')}</h3>`;
-    Object.entries(d).forEach(([k,v]) => {
+    Object.entries(r.data).forEach(([k,v]) => {
       const shown = k === 'amount' ? fmt(v) : (k === 'kind' ? tmap('kind', v, v) : (v===null?'—':v));
       const p = document.createElement('p'); p.style.margin='4px 0';
       p.innerHTML = `<b>${labels[k]||k}</b> : ${shown}`;
       card.appendChild(p);
     });
-    const vb = document.createElement('button'); vb.className='ghost'; vb.style.marginTop='10px'; vb.textContent = t('bc_verify');vb.addEventListener('click', async () => {
+    const vb = document.createElement('button'); vb.className='ghost'; vb.style.marginTop='10px'; vb.textContent = t('bc_verify');
+    vb.addEventListener('click', async () => {
       const res = await api('POST','/blockchain/verify/', { reference: ref });
       card.appendChild(msg(res.status===200 && res.data.verified ? ('✅ ' + (res.data.note || '') + ' · ' + (res.data.data_hash||'').slice(0,16) + '…') : fmtErr(res), res.status===200 && res.data.verified));
     });
     card.appendChild(vb);
-    const back = document.createElement('button'); back.textContent='← ' + t('nav_history'); back.style.marginLeft='8px';back.addEventListener('click', () => view('history'));
-    card.appendChild(back);
   } else card.appendChild(msg(fmtErr(r), false));
   main.appendChild(card);
 }
 
-// ---------- Shipments ----------
-async function viewShipments() {
-  clearMain();
-  currentView = 'shipments';
+// ---------- Transit (centralized page) ----------
+async function viewTransit() {
+  clearMain(); currentView = 'transit';
   const main = document.getElementById('main');
+  // Shipments section
+  const shipCard = document.createElement('div'); shipCard.className='card';
+  shipCard.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h3 class="title" style="margin:0">${t('ship_title')}</h3>
+    <button class="primary" id="newShip">${icon('plus')} ${t('ship_new')}</button>
+  </div>`;
+  document.getElementById('main').appendChild(shipCard);
+  document.getElementById('newShip').addEventListener('click', () => view('shipmentcreate'));
   const r = await api('GET','/logistics/shipments/');
-  const card = document.createElement('div'); card.className='card';
-  card.innerHTML = `<h3 class="title">${t('ship_title')}</h3><div style="margin-bottom:8px"><button class="primary" id="newShip">${t('ship_new')}</button></div>`;
-  document.getElementById('main').appendChild(card);document.getElementById('newShip').addEventListener('click', () => view('shipmentcreate'));
   const items = paginateToItems(r);
-  if (!items.length) card.appendChild(document.createTextNode(t('ship_none')));
-  else {
-    const tbl = document.createElement('table'); tbl.innerHTML = `<tr><th>${t('table_ref')}</th><th>${t('ship_name')}</th><th>${t('ship_route')}</th><th>${t('table_status')}</th></tr>`;
+  if (!items.length) {
+    shipCard.innerHTML += `<div class="empty"><h4>${t('ship_none')}</h4><p>Créez votre première expédition</p><button class="primary" onclick="view('shipmentcreate')">${icon('plus')} ${t('ship_new')}</button></div>`;
+  } else {
     items.forEach(s => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${String(s.reference).slice(0,10)}</td><td>${s.name}</td><td>${s.origin} → ${s.destination}</td><td>${tmap('ship_statuses', s.status, s.status)}</td>`;
-      tr.style.cursor='pointer';tr.addEventListener('click', () => { localStorage.setItem('selected_shipment', s.reference); view('shipmentdetail'); });
-      tbl.appendChild(tr);
+      const c = document.createElement('div'); c.className='card'; c.style.cursor='pointer';
+      c.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+        <div><b>${s.reference}</b><br><span class="muted">${s.name} · ${s.origin} → ${s.destination}</span></div>
+        <span class="badge ${s.status==='livre'?'success':''}">${tmap('ship_statuses', s.status, s.status)}</span>
+      </div>`;
+      c.addEventListener('click', () => { localStorage.setItem('selected_shipment', s.reference); view('shipmentdetail'); });
+      shipCard.appendChild(c);
     });
-    card.appendChild(tbl);
+  }
+  // Customs section
+  const custCard = document.createElement('div'); custCard.className='card';
+  custCard.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h3 class="title" style="margin:0">${t('cust_title')}</h3>
+    <button class="primary" id="newCase">${icon('plus')} ${t('cust_new')}</button>
+  </div>`;
+  main.appendChild(custCard);
+  document.getElementById('newCase').addEventListener('click', () => view('customscreate'));
+  const cr = await api('GET','/customs/cases/');
+  const citems = paginateToItems(cr);
+  if (!citems.length) {
+    custCard.innerHTML += `<div class="empty"><h4>${t('cust_none')}</h4><p>Créez votre premier dossier douane</p><button class="primary" onclick="view('customscreate')">${icon('plus')} ${t('cust_new')}</button></div>`;
+  } else {
+    citems.forEach(c => {
+      const cc = document.createElement('div'); cc.className='card'; cc.style.cursor='pointer';
+      cc.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+        <div><b>${c.reference}</b><br><span class="muted">${c.description} · ${c.origin_country} → ${c.destination_country}</span></div>
+        <span class="badge">${tmap('cust_statuses', c.status, c.status)}</span>
+      </div>`;
+      cc.addEventListener('click', () => { localStorage.setItem('selected_customs', c.reference); view('customsdetail'); });
+      custCard.appendChild(cc);
+    });
   }
 }
+
+// ---------- Shipment create/detail (kept from before) ----------
+async function viewShipments() { view('transit'); }
 async function viewShipmentcreate() {
-  clearMain();
-  currentView = 'shipmentcreate';
+  clearMain(); currentView = 'shipmentcreate';
   const main = document.getElementById('main');
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<h3 class="title">${t('ship_new')}</h3>
@@ -1348,17 +1006,17 @@ async function viewShipmentcreate() {
     <label>${t('ship_mode')}</label><select id="sh_mode"><option value="maritime">${t('modes').maritime}</option><option value="aerien">${t('modes').aerien}</option><option value="terrestre">${t('modes').terrestre}</option></select>
     <label>${t('ship_carrier')}</label><input id="sh_carrier">
     <label>${t('ship_track')}</label><input id="sh_track">
-    <div style="margin-top:12px"><button class="primary" id="sh_btn">${t('ship_create')}</button></div>`;
-  main.appendChild(card);document.getElementById('sh_btn').addEventListener('click', async () => {
+    <div style="margin-top:16px"><button class="primary" id="sh_btn" style="width:100%">${t('ship_create')}</button></div>`;
+  main.appendChild(card);
+  document.getElementById('sh_btn').addEventListener('click', async () => {
     const payload = { name: document.getElementById('sh_name').value, origin: document.getElementById('sh_origin').value, destination: document.getElementById('sh_dest').value, mode: document.getElementById('sh_mode').value, carrier: document.getElementById('sh_carrier').value, tracking_number: document.getElementById('sh_track').value };
     const res = await api('POST','/logistics/shipments/', payload);
-    if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('ship_ok'))); setTimeout(()=>view('shipments'),900); }
+    if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('ship_ok'))); setTimeout(()=>view('transit'),900); }
     else card.appendChild(msg(fmtErr(res), false));
   });
 }
 async function viewShipmentdetail() {
-  clearMain();
-  currentView = 'shipmentdetail';
+  clearMain(); currentView = 'shipmentdetail';
   const main = document.getElementById('main');
   const ref = localStorage.getItem('selected_shipment');
   const r = await api('GET','/logistics/shipments/'+ref+'/');
@@ -1366,10 +1024,11 @@ async function viewShipmentdetail() {
   if (r.status !== 200) { card.appendChild(msg(fmtErr(r), false)); main.appendChild(card); return; }
   const d = r.data;
   card.innerHTML = `<h3 class="title">${t('ship_detail')}</h3>
-    <p><b>${d.reference}</b> — ${d.name}</p><p>${t('ship_route')}: ${d.origin} → ${d.destination}</p><p>${t('ship_status_lbl')}: ${tmap('ship_statuses', d.status, d.status)} • ${t('ship_mode_lbl')}: ${tmap('modes', d.mode, d.mode)}</p>
-    <p class="muted">${t('ship_carrier_lbl')}: ${d.carrier||'—'} • ${t('ship_track_lbl')}: ${d.tracking_number||'—'}</p>
-    <h4>${t('ship_timeline')}</h4><div id="evlist"></div>
-    <div class="card"><label>${t('new_status')}</label><select id="ev_status">
+    <p><b>${d.reference}</b> — ${d.name}</p><p>${t('ship_route')}: ${d.origin} → ${d.destination}</p>
+    <p>${t('ship_status_lbl')}: ${tmap('ship_statuses', d.status, d.status)} · ${t('ship_mode_lbl')}: ${tmap('modes', d.mode, d.mode)}</p>
+    <p class="muted">${t('ship_carrier_lbl')}: ${d.carrier||'—'} · ${t('ship_track_lbl')}: ${d.tracking_number||'—'}</p>
+    <h4 style="margin-top:12px">${t('ship_timeline')}</h4><div id="evlist"></div>
+    <div class="card" style="margin-top:12px"><label>${t('new_status')}</label><select id="ev_status">
       ${Object.entries(t('ship_statuses')).map(([k,v]) => `<option value="${k}">${v}</option>`).join('')}
     </select>
     <label>${t('location')}</label><input id="ev_loc"><label>Description</label><input id="ev_desc">
@@ -1377,12 +1036,19 @@ async function viewShipmentdetail() {
   main.appendChild(card);
   const evlist = document.getElementById('evlist');
   (d.events||[]).forEach(ev => { const p=document.createElement('p'); p.style.margin='2px 0'; p.textContent = `${(ev.created_at||'').slice(0,19).replace('T',' ')} — ${tmap('ship_statuses', ev.status, ev.status)} — ${ev.location||''} ${ev.description||''}`; evlist.appendChild(p); });
-  // documents
   const docsDiv = document.createElement('div'); docsDiv.style.marginTop='8px';
   const docsTitle = document.createElement('h4'); docsTitle.textContent = t('docs_title'); docsDiv.appendChild(docsTitle);
-  (d.documents||[]).forEach(doc => { const p=document.createElement('p'); p.style.margin='2px 0'; const a=document.createElement('a'); a.href='#'; a.textContent=doc.name; a.onclick=(e)=>{e.preventDefault();downloadAuth('/logistics/shipments/'+ref+'/documents/'+doc.id+'/download/', doc.name);}; p.appendChild(a); p.appendChild(document.createTextNode(' ')); const sp=document.createElement('span'); sp.className='muted'; sp.textContent=(doc.created_at||'').slice(0,10); p.appendChild(sp); docsDiv.appendChild(p); });
+  (d.documents||[]).forEach(doc => {
+    const p=document.createElement('p'); p.style.margin='2px 0';
+    const a=document.createElement('a'); a.href='#'; a.textContent=doc.name; a.className='link';
+    a.addEventListener('click', (e) => { e.preventDefault(); downloadAuth('/logistics/shipments/'+ref+'/documents/'+doc.id+'/download/', doc.name); });
+    p.appendChild(a); p.appendChild(document.createTextNode(' '));
+    const sp=document.createElement('span'); sp.className='muted'; sp.textContent=(doc.created_at||'').slice(0,10); p.appendChild(sp);
+    docsDiv.appendChild(p);
+  });
   const fileIn = document.createElement('input'); fileIn.type='file'; fileIn.style.marginTop='6px';
-  const upBtn = document.createElement('button'); upBtn.className='primary'; upBtn.textContent = t('docs_upload'); upBtn.style.marginTop='6px';upBtn.addEventListener('click', async () => {
+  const upBtn = document.createElement('button'); upBtn.className='primary'; upBtn.textContent = t('docs_upload'); upBtn.style.marginTop='6px';
+  upBtn.addEventListener('click', async () => {
     if (!fileIn.files || !fileIn.files[0]) { card.appendChild(msg(t('docs_need'), false)); return; }
     const fd = new FormData(); fd.append('file', fileIn.files[0]);
     try {
@@ -1393,38 +1059,18 @@ async function viewShipmentdetail() {
     } catch(e) { card.appendChild(msg(t('err_unreachable'), false)); }
   });
   docsDiv.appendChild(fileIn); docsDiv.appendChild(document.createElement('br')); docsDiv.appendChild(upBtn);
-  card.appendChild(docsDiv);document.getElementById('ev_btn').addEventListener('click', async () => {
+  card.appendChild(docsDiv);
+  document.getElementById('ev_btn').addEventListener('click', async () => {
     const res = await api('POST','/logistics/shipments/'+ref+'/events/', { status: document.getElementById('ev_status').value, location: document.getElementById('ev_loc').value, description: document.getElementById('ev_desc').value });
     if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('ev_ok'))); setTimeout(()=>view('shipmentdetail'),800); }
     else card.appendChild(msg(fmtErr(res), false));
   });
 }
 
-// ---------- Customs ----------
-async function viewCustoms() {
-  clearMain();
-  currentView = 'customs';
-  const main = document.getElementById('main');
-  const r = await api('GET','/customs/cases/');
-  const card = document.createElement('div'); card.className='card';
-  card.innerHTML = `<h3 class="title">${t('cust_title')}</h3><div style="margin-bottom:8px"><button class="primary" id="newCase">${t('cust_new')}</button></div>`;
-  main.appendChild(card);document.getElementById('newCase').addEventListener('click', () => view('customscreate'));
-  const items = paginateToItems(r);
-  if (!items.length) card.appendChild(document.createTextNode(t('cust_none')));
-  else {
-    const tbl = document.createElement('table'); tbl.innerHTML = `<tr><th>${t('table_ref')}</th><th>${t('cust_desc')}</th><th>${t('ship_route')}</th><th>${t('table_status')}</th></tr>`;
-    items.forEach(c => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${String(c.reference).slice(0,10)}</td><td>${c.description}</td><td>${c.origin_country} → ${c.destination_country}</td><td>${tmap('cust_statuses', c.status, c.status)}</td>`;
-      tr.style.cursor='pointer';tr.addEventListener('click', () => { localStorage.setItem('selected_customs', c.reference); view('customsdetail'); });
-      tbl.appendChild(tr);
-    });
-    card.appendChild(tbl);
-  }
-}
+// ---------- Customs (integrated into transit, but keep standalone) ----------
+async function viewCustoms() { view('transit'); }
 async function viewCustomscreate() {
-  clearMain();
-  currentView = 'customscreate';
+  clearMain(); currentView = 'customscreate';
   const main = document.getElementById('main');
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<h3 class="title">${t('cust_new')}</h3>
@@ -1432,17 +1078,17 @@ async function viewCustomscreate() {
     <label>${t('cust_origin')}</label><input id="cs_origin">
     <label>${t('cust_dest')}</label><input id="cs_dest">
     <label>${t('ship_mode')}</label><select id="cs_mode"><option value="maritime">${t('modes').maritime}</option><option value="aerien">${t('modes').aerien}</option><option value="terrestre">${t('modes').terrestre}</option></select>
-    <div style="margin-top:12px"><button class="primary" id="cs_btn">${t('cust_create')}</button></div>`;
-  main.appendChild(card);document.getElementById('cs_btn').addEventListener('click', async () => {
+    <div style="margin-top:16px"><button class="primary" id="cs_btn" style="width:100%">${t('cust_create')}</button></div>`;
+  main.appendChild(card);
+  document.getElementById('cs_btn').addEventListener('click', async () => {
     const payload = { description: document.getElementById('cs_desc').value, origin_country: document.getElementById('cs_origin').value, destination_country: document.getElementById('cs_dest').value, mode: document.getElementById('cs_mode').value };
     const res = await api('POST','/customs/cases/', payload);
-    if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('cust_ok'))); setTimeout(()=>view('customs'),900); }
+    if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('cust_ok'))); setTimeout(()=>view('transit'),900); }
     else card.appendChild(msg(fmtErr(res), false));
   });
 }
 async function viewCustomsdetail() {
-  clearMain();
-  currentView = 'customsdetail';
+  clearMain(); currentView = 'customsdetail';
   const main = document.getElementById('main');
   const ref = localStorage.getItem('selected_customs');
   const r = await api('GET','/customs/cases/'+ref+'/');
@@ -1450,10 +1096,11 @@ async function viewCustomsdetail() {
   if (r.status !== 200) { card.appendChild(msg(fmtErr(r), false)); main.appendChild(card); return; }
   const d = r.data;
   card.innerHTML = `<h3 class="title">${t('cust_detail')}</h3>
-    <p><b>${d.reference}</b></p><p>${d.description}</p><p>${d.origin_country} → ${d.destination_country}</p><p>${t('table_status')}: ${tmap('cust_statuses', d.status, d.status)}</p>
-    <h4>${t('cust_req')}</h4><div id="reqs"></div>
-    <h4>${t('cust_hist')}</h4><div id="evs"></div>
-    <div class="card"><label>${t('table_status')}</label><select id="cs_status">
+    <p><b>${d.reference}</b></p><p>${d.description}</p><p>${d.origin_country} → ${d.destination_country}</p>
+    <p>${t('table_status')}: ${tmap('cust_statuses', d.status, d.status)}</p>
+    <h4 style="margin-top:12px">${t('cust_req')}</h4><div id="reqs"></div>
+    <h4 style="margin-top:12px">${t('cust_hist')}</h4><div id="evs"></div>
+    <div class="card" style="margin-top:12px"><label>${t('table_status')}</label><select id="cs_status">
       ${Object.entries(t('cust_statuses')).map(([k,v]) => `<option value="${k}">${v}</option>`).join('')}
     </select>
     <label>Description</label><input id="cs_desc">
@@ -1462,18 +1109,25 @@ async function viewCustomsdetail() {
   const reqs = document.getElementById('reqs');
   (d.requirements||[]).forEach(rq => {
     const cb = document.createElement('input'); cb.type='checkbox'; cb.checked = rq.provided;
-    cb.onchange = async () => { await api('POST','/customs/cases/'+ref+'/requirements/'+rq.id+'/toggle/'); viewCustomsdetail(); };
+    cb.addEventListener('change', async () => { await api('POST','/customs/cases/'+ref+'/requirements/'+rq.id+'/toggle/'); viewCustomsdetail(); });
     const lbl = document.createElement('label'); lbl.style.display='block'; lbl.appendChild(cb); lbl.appendChild(document.createTextNode(' '+rq.name));
     reqs.appendChild(lbl);
   });
   const evs = document.getElementById('evs');
   (d.events||[]).forEach(ev => { const p=document.createElement('p'); p.style.margin='2px 0'; p.textContent = `${(ev.created_at||'').slice(0,19).replace('T',' ')} — ${tmap('cust_statuses', ev.status, ev.status)} ${ev.description||''}`; evs.appendChild(p); });
-  // documents
   const cdocs = document.createElement('div'); cdocs.style.marginTop='8px';
   const cdocsTitle = document.createElement('h4'); cdocsTitle.textContent = t('cust_docs_uploaded'); cdocs.appendChild(cdocsTitle);
-  (d.documents||[]).forEach(doc => { const p=document.createElement('p'); p.style.margin='2px 0'; const a=document.createElement('a'); a.href='#'; a.textContent=doc.name; a.onclick=(e)=>{e.preventDefault();downloadAuth('/customs/cases/'+ref+'/documents/'+doc.id+'/download/', doc.name);}; p.appendChild(a); p.appendChild(document.createTextNode(' ')); const sp=document.createElement('span'); sp.className='muted'; sp.textContent=(doc.created_at||'').slice(0,10); p.appendChild(sp); cdocs.appendChild(p); });
+  (d.documents||[]).forEach(doc => {
+    const p=document.createElement('p'); p.style.margin='2px 0';
+    const a=document.createElement('a'); a.href='#'; a.textContent=doc.name; a.className='link';
+    a.addEventListener('click', (e) => { e.preventDefault(); downloadAuth('/customs/cases/'+ref+'/documents/'+doc.id+'/download/', doc.name); });
+    p.appendChild(a); p.appendChild(document.createTextNode(' '));
+    const sp=document.createElement('span'); sp.className='muted'; sp.textContent=(doc.created_at||'').slice(0,10); p.appendChild(sp);
+    cdocs.appendChild(p);
+  });
   const cfileIn = document.createElement('input'); cfileIn.type='file'; cfileIn.style.marginTop='6px';
-  const cupBtn = document.createElement('button'); cupBtn.className='primary'; cupBtn.textContent = t('docs_upload'); cupBtn.style.marginTop='6px';cupBtn.addEventListener('click', async () => {
+  const cupBtn = document.createElement('button'); cupBtn.className='primary'; cupBtn.textContent = t('docs_upload'); cupBtn.style.marginTop='6px';
+  cupBtn.addEventListener('click', async () => {
     if (!cfileIn.files || !cfileIn.files[0]) { card.appendChild(msg(t('docs_need'), false)); return; }
     const fd = new FormData(); fd.append('file', cfileIn.files[0]);
     try {
@@ -1484,17 +1138,17 @@ async function viewCustomsdetail() {
     } catch(e) { card.appendChild(msg(t('err_unreachable'), false)); }
   });
   cdocs.appendChild(cfileIn); cdocs.appendChild(document.createElement('br')); cdocs.appendChild(cupBtn);
-  card.appendChild(cdocs);document.getElementById('cs_btn').addEventListener('click', async () => {
+  card.appendChild(cdocs);
+  document.getElementById('cs_btn').addEventListener('click', async () => {
     const res = await api('POST','/customs/cases/'+ref+'/events/', { status: document.getElementById('cs_status').value, description: document.getElementById('cs_desc').value });
     if (res.status === 201 || res.status === 200) { card.appendChild(msg(t('cust_ok_upd'))); setTimeout(()=>viewCustomsdetail(),800); }
     else card.appendChild(msg(fmtErr(res), false));
   });
 }
 
-// ---------- Blockchain ----------
+// ---------- Blockchain (advanced section) ----------
 async function viewBlockchain() {
-  clearMain();
-  currentView = 'blockchain';
+  clearMain(); currentView = 'blockchain';
   const main = document.getElementById('main');
   const info = await api('GET','/blockchain/info/');
   const recs = await api('GET','/blockchain/records/');
@@ -1502,7 +1156,10 @@ async function viewBlockchain() {
   if (info.status === 200) {
     const d = info.data;
     card.innerHTML = `<h3 class="title">${t('bc_title')}</h3>
-      <p>${t('bc_network')}: ${d.network} (${d.chain_id})</p><p>${t('bc_rpc')}: ${d.rpc_configured}</p><p>${t('bc_status')}: ${d.message}</p>
+      <p>${t('bc_network')}: ${d.network} (chainId ${d.chain_id})</p>
+      <p>${t('bc_rpc')}: ${d.rpc_configured}</p>
+      <p>${t('bc_status')}: ${d.message}</p>
+      ${d.on_chain_enabled ? '<p class="muted" style="color:var(--green)">On-chain activé (Sepolia)</p>' : '<p class="muted">Mode démonstration (pas de RPC configuré)</p>'}
       <p class="muted">${t('bc_note')}</p>`;
   } else card.appendChild(msg(fmtErr(info), false));
   main.appendChild(card);
@@ -1511,16 +1168,18 @@ async function viewBlockchain() {
   const typeIn = document.createElement('input'); typeIn.placeholder = t('bc_type'); typeIn.value='document';
   const payloadIn = document.createElement('input'); payloadIn.placeholder = t('bc_data');
   const btnRec = document.createElement('button'); btnRec.className='primary'; btnRec.textContent = t('bc_save');
-  const btnVer = document.createElement('button'); btnVer.textContent = t('bc_verify'); btnVer.style.marginLeft='8px';
-  const btnRef = document.createElement('button'); btnRef.textContent = '↻ Actualiser'; btnRef.style.marginLeft='8px';
+  const btnVer = document.createElement('button'); btnVer.className='ghost'; btnVer.textContent = t('bc_verify'); btnVer.style.marginLeft='8px';
+  const btnRef = document.createElement('button'); btnRef.className='ghost'; btnRef.textContent = '↻ Actualiser'; btnRef.style.marginLeft='8px';
   c2.appendChild(typeIn); c2.appendChild(payloadIn); c2.appendChild(document.createElement('br')); c2.appendChild(btnRec); c2.appendChild(btnVer); c2.appendChild(btnRef);
-  const resDiv = document.createElement('div'); c2.appendChild(resDiv);btnRec.addEventListener('click', async () => {
+  const resDiv = document.createElement('div'); c2.appendChild(resDiv);
+  btnRec.addEventListener('click', async () => {
     const res = await api('POST','/blockchain/records/', { record_type: typeIn.value || 'document', payload: payloadIn.value });
     resDiv.innerHTML = ''; resDiv.appendChild(msg(res.status===201||res.status===200 ? (res.data.message||'OK') : fmtErr(res), res.status===201||res.status===200));
     viewBlockchain();
-  });btnVer.addEventListener('click', async () => {
+  });
+  btnVer.addEventListener('click', async () => {
     const res = await api('POST','/blockchain/verify/', { payload: payloadIn.value });
-    resDiv.innerHTML = ''; resDiv.appendChild(msg(res.status===200 ? (t('bc_verify')+': '+res.data.verified+' ('+res.data.status+')') : fmtErr(res), res.status===200 && res.data.verified));
+    resDiv.innerHTML = ''; resDiv.appendChild(msg(res.status===200 ? (t('bc_verify')+': '+res.data.verified+' ('+res.data.status+')' + (res.data.on_chain ? ' [on-chain]' : '')) : fmtErr(res), res.status===200 && res.data.verified));
   });
   btnRef.addEventListener('click', async () => {
     const res = await api('POST','/blockchain/refresh/', {});
@@ -1542,8 +1201,7 @@ async function viewBlockchain() {
 
 // ---------- Payments ----------
 async function viewPayments() {
-  clearMain();
-  currentView = 'payments';
+  clearMain(); currentView = 'payments';
   const main = document.getElementById('main');
   const info = await api('GET','/payments/mobile-money/info/');
   const rates = await api('GET','/payments/rates/');
@@ -1564,7 +1222,8 @@ async function viewPayments() {
     <label>${t('pay_est_amount')}</label><input id="ic_amt" type="number" value="100000">
     <div style="margin-top:8px"><button class="primary" id="ic_btn">${t('pay_est_btn')}</button></div>
     <div id="ic_res" style="margin-top:8px"></div>`;
-  main.appendChild(c2);document.getElementById('ic_btn').addEventListener('click', async () => {
+  main.appendChild(c2);
+  document.getElementById('ic_btn').addEventListener('click', async () => {
     const payload = { origin_country: document.getElementById('ic_o').value, destination_country: document.getElementById('ic_d').value, origin_currency: document.getElementById('ic_oc').value, destination_currency: document.getElementById('ic_dc').value, amount: parseFloat(document.getElementById('ic_amt').value) };
     const res = await api('POST','/payments/international/estimate/', payload);
     const div = document.getElementById('ic_res');
@@ -1574,7 +1233,6 @@ async function viewPayments() {
       div.innerHTML = `<p><b>${t('pay_ref')}:</b> ${d.reference}</p><p>${t('pay_rate')}: ${d.rate} (${d.rate_source})</p><p>${t('pay_est_fee')}: ${fmt(d.estimated_fee)} ${d.origin_currency}</p><p>${t('pay_est_receive')}: ${d.estimated_receive} ${d.destination_currency}</p><p>${t('table_status')}: ${d.status}</p><p class="muted">${d.note||''}</p>`;
     } else div.appendChild(msg(fmtErr(res), false));
   });
-  // mes estimations
   const intl = await api('GET','/payments/international/');
   const c3 = document.createElement('div'); c3.className='card';
   c3.innerHTML = `<h3 class="title">${t('pay_my')}</h3>`;
@@ -1590,65 +1248,82 @@ async function viewPayments() {
 
 // ---------- Notifications ----------
 async function viewNotifications() {
-  clearMain();
-  currentView = 'notifications';
+  clearMain(); currentView = 'notifications';
   const main = document.getElementById('main');
   const r = await api('GET','/notifications/');
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<h3 class="title">${t('notif_title')}</h3><div style="margin-bottom:8px"><button class="primary" id="readAll">${t('notif_readall')}</button></div>`;
-  main.appendChild(card);document.getElementById('readAll').addEventListener('click', async () => { await api('POST','/notifications/read-all/'); viewNotifications(); });
+  main.appendChild(card);
+  document.getElementById('readAll').addEventListener('click', async () => { await api('POST','/notifications/read-all/'); viewNotifications(); });
   const items = paginateToItems(r);
   if (!items.length) card.appendChild(document.createTextNode(t('notif_none')));
   else items.forEach(n => {
-    const div = document.createElement('div'); div.style.padding='8px'; div.style.borderBottom='1px solid #eee';
+    const div = document.createElement('div'); div.style.padding='8px'; div.style.borderBottom='1px solid var(--border)';
     div.innerHTML = `<b>${n.title}</b> <span class="badge ${n.is_read?'':'unread'}">${n.is_read?t('notif_read_lbl'):t('notif_unread_lbl')}</span><br><span class="muted">${(n.created_at||'').slice(0,19).replace('T',' ')}</span><br>${n.message}`;
     if (!n.is_read) {
-      const b = document.createElement('button'); b.textContent = t('notif_read'); b.style.marginTop='4px';b.addEventListener('click', async () => { await api('POST','/notifications/'+n.id+'/read/'); viewNotifications(); });
+      const b = document.createElement('button'); b.textContent = t('notif_read'); b.style.marginTop='4px'; b.className='ghost';
+      b.addEventListener('click', async () => { await api('POST','/notifications/'+n.id+'/read/'); viewNotifications(); });
       div.appendChild(b);
     }
     card.appendChild(div);
   });
 }
 
-// ---------- Profile ----------
+// ---------- Profile (centralized) ----------
 async function viewProfile() {
-  clearMain();
-  currentView = 'profile';
+  clearMain(); currentView = 'profile';
   const main = document.getElementById('main');
   const r = await api('GET','/accounts/me/');
   const card = document.createElement('div'); card.className='card';
   if (r.status !== 200) { card.appendChild(msg(fmtErr(r), false)); main.appendChild(card); return; }
   const d = r.data;
   card.innerHTML = `<h3 class="title">${t('prof_title')}</h3>
-    <p class="muted">${d.email} — ${t('prof_created')} ${(d.created_at||'').slice(0,10)}</p>
-    <label>${t('reg_first')}</label><input id="pf_first" value="${(d.first_name||'').replace('"','&quot;')}">
-    <label>${t('reg_last')}</label><input id="pf_last" value="${(d.last_name||'').replace('"','&quot;')}">
-    <label>${t('reg_phone')}</label><input id="pf_phone" value="${(d.phone||'').replace('"','&quot;')}">
-    <label>${t('cust_origin')}</label><input id="pf_country" value="${(d.country||'').replace('"','&quot;')}">
-    <label>${t('prof_lang')}</label><select id="pf_lang">
-      <option value="fr">Français</option><option value="mg">Malagasy</option><option value="en">English</option>
-    </select>
-    <div style="margin-top:12px;display:flex;gap:8px">
-      <button class="primary" id="pf_save">${t('prof_save')}</button>
-      <button class="danger" id="pf_logout">${t('prof_logout')}</button>
-    </div>`;
+    <div style="display:grid;gap:12px">
+      <div class="card flat">
+        <h4 style="margin:0 0 8px;color:var(--muted);font-size:12px;text-transform:uppercase">${t('prof_info')}</h4>
+        <p class="muted">${d.email} — ${t('prof_created')} ${(d.created_at||'').slice(0,10)}</p>
+        <label>${t('reg_first')}</label><input id="pf_first" value="${(d.first_name||'').replace(/"/g,'&quot;')}">
+        <label>${t('reg_last')}</label><input id="pf_last" value="${(d.last_name||'').replace(/"/g,'&quot;')}">
+        <label>${t('reg_phone')}</label><input id="pf_phone" value="${(d.phone||'').replace(/"/g,'&quot;')}">
+        <label>Pays</label><input id="pf_country" value="${(d.country||'').replace(/"/g,'&quot;')}">
+        <label>${t('prof_lang')}</label><select id="pf_lang"><option value="fr">Français</option><option value="mg">Malagasy</option><option value="en">English</option></select>
+        <div style="margin-top:12px"><button class="primary" id="pf_save">${t('prof_save')}</button></div>
+      </div>
+      <div class="card flat">
+        <h4 style="margin:0 0 8px;color:var(--muted);font-size:12px;text-transform:uppercase">${t('prof_security')}</h4>
+        <p class="muted" style="margin-bottom:8px">Mot de passe, vérification e-mail</p>
+        <button class="ghost" onclick="view('security')">Gérer la sécurité</button>
+      </div>
+      <div class="card flat">
+        <h4 style="margin:0 0 8px;color:var(--muted);font-size:12px;text-transform:uppercase">${t('prof_settings')}</h4>
+        <p class="muted" style="margin-bottom:8px">Langue, notifications</p>
+        <button class="ghost" onclick="view('settings')">Paramètres</button>
+      </div>
+      <div class="card flat">
+        <h4 style="margin:0 0 8px;color:var(--muted);font-size:12px;text-transform:uppercase">${t('prof_support')}</h4>
+        <p class="muted" style="margin-bottom:8px">Aide et assistance</p>
+        <button class="ghost" onclick="view('support')">Contacter le support</button>
+      </div>
+    </div>
+    <div style="margin-top:16px"><button class="danger" id="pf_logout">${t('prof_logout')}</button></div>`;
   main.appendChild(card);
-  document.getElementById('pf_lang').value = d.preferred_language || lang || 'fr';document.getElementById('pf_save').addEventListener('click', async () => {
+  document.getElementById('pf_lang').value = d.preferred_language || lang || 'fr';
+  document.getElementById('pf_save').addEventListener('click', async () => {
     const payload = { first_name: document.getElementById('pf_first').value, last_name: document.getElementById('pf_last').value, phone: document.getElementById('pf_phone').value, country: document.getElementById('pf_country').value, preferred_language: document.getElementById('pf_lang').value };
     const res = await api('PATCH','/accounts/me/', payload);
     if (res.status === 200) { user = res.data; localStorage.setItem('user',JSON.stringify(user)); setUserLabel(); card.appendChild(msg(t('prof_saved'))); }
     else card.appendChild(msg(fmtErr(res), false));
-  });document.getElementById('pf_logout').addEventListener('click', async () => {
+  });
+  document.getElementById('pf_logout').addEventListener('click', async () => {
     await api('POST','/accounts/logout/');
     token = null; user = null; localStorage.removeItem('token'); localStorage.removeItem('user');
-    setUserLabel(); showNav(false); viewLogin();
+    setUserLabel(); showNav(false); viewLanding();
   });
 }
 
 // ---------- QR Code ----------
 async function viewQr() {
-  clearMain();
-  currentView = 'qr';
+  clearMain(); currentView = 'qr';
   const main = document.getElementById('main');
   const me = JSON.parse(localStorage.getItem('user') || '{}');
   const email = me.email || '';
@@ -1656,8 +1331,8 @@ async function viewQr() {
   const card = document.createElement('div'); card.className='card'; card.style.textAlign='center';
   card.innerHTML = `<h3 class="title">${t('qr_title')}</h3>
     <p class="muted">${t('qr_code')} : ${email}</p>
-    <canvas id="qrCanvas" style="margin:12px auto;display:block"></canvas>
-    <p class="muted" style="word-break:break-all">${payload}</p>
+    <canvas id="qrCanvas" style="margin:12px auto;display:block;background:#fff;padding:8px;border-radius:8px"></canvas>
+    <p class="muted" style="word-break:break-all;font-size:11px">${payload}</p>
     <h4 style="margin-top:16px">${t('qr_scan')}</h4>
     <label>${t('qr_payload')}</label><input id="qr_input">
     <label>${t('qr_amount')}</label><input id="qr_amt" type="number" value="100">
@@ -1676,26 +1351,81 @@ async function viewQr() {
   });
 }
 
+// ---------- Security / Settings / Support (placeholders) ----------
+async function viewSecurity() {
+  clearMain(); currentView = 'security';
+  const main = document.getElementById('main');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('prof_security')}</h3>
+    <p class="muted">Gestion du mot de passe et de la vérification e-mail.</p>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="ghost" onclick="requestPasswordReset()">Réinitialiser le mot de passe</button>
+      <button class="ghost" onclick="requestEmailVerify()">Vérifier l'e-mail</button>
+    </div>`;
+  main.appendChild(card);
+}
+async function requestPasswordReset() {
+  const email = (user && user.email) || prompt('E-mail :');
+  if (!email) return;
+  const res = await api('POST','/accounts/password-reset/', { email });
+  alert(res.data.detail || fmtErr(res));
+}
+async function requestEmailVerify() {
+  const res = await api('POST','/accounts/verify-email/request/', {});
+  alert(res.data.detail || fmtErr(res));
+}
+async function viewSettings() {
+  clearMain(); currentView = 'settings';
+  const main = document.getElementById('main');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('prof_settings')}</h3>
+    <label>${t('prof_lang')}</label><select id="set_lang"><option value="fr">Français</option><option value="mg">Malagasy</option><option value="en">English</option></select>
+    <div style="margin-top:12px"><button class="primary" id="set_save">Enregistrer</button></div>`;
+  main.appendChild(card);
+  document.getElementById('set_lang').value = lang;
+  document.getElementById('set_save').addEventListener('click', () => setLang(document.getElementById('set_lang').value));
+}
+async function viewSupport() {
+  clearMain(); currentView = 'support';
+  const main = document.getElementById('main');
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3 class="title">${t('prof_support')}</h3>
+    <p class="muted">Pour toute question, contactez le support Ariary Numeric.</p>
+    <p class="muted" style="margin-top:8px">E-mail : support@ariary-numeric.mg</p>`;
+  main.appendChild(card);
+}
+
+// ---------- Download helper ----------
+async function downloadAuth(path, filename) {
+  try {
+    const r = await fetch(API + path, { headers: token ? {'Authorization':'Token '+token} : {} });
+    if (!r.ok) { alert(fmtErr({status:r.status,data:await r.text()})); return; }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = filename || 'document'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (e) { alert(t('err_unreachable')); }
+}
+
 // ---------- Router ----------
-const views = { dashboard:viewDashboard, wallet:viewWallet, transfer:viewTransfer, topup:viewTopup, history:viewHistory, txdetail:viewTxdetail, shipments:viewShipments, shipmentcreate:viewShipmentcreate, shipmentdetail:viewShipmentdetail, customs:viewCustoms, customscreate:viewCustomscreate, customsdetail:viewCustomsdetail, blockchain:viewBlockchain, payments:viewPayments, notifications:viewNotifications, profile:viewProfile, qr:viewQr, landing:viewLanding, login:viewLogin, register:viewRegister };
+const views = { dashboard:viewDashboard, wallet:viewWallet, transfer:viewTransfer, topup:viewTopup, history:viewHistory, txdetail:viewTxdetail, transit:viewTransit, shipmentcreate:viewShipmentcreate, shipmentdetail:viewShipmentdetail, customs:viewCustoms, customscreate:viewCustomscreate, customsdetail:viewCustomsdetail, blockchain:viewBlockchain, payments:viewPayments, notifications:viewNotifications, profile:viewProfile, qr:viewQr, security:viewSecurity, settings:viewSettings, support:viewSupport, landing:viewLanding, login:viewLogin, register:viewRegister };
 function view(name) {
   currentView = name && views[name] ? name : 'dashboard';
   if (views[currentView]) views[currentView]();
   else viewDashboard();
-  document.querySelectorAll('#nav button').forEach(x => x.classList.toggle('active', x.dataset.view === currentView));
+  document.querySelectorAll('.bottom-nav button').forEach(x => x.classList.toggle('active', x.dataset.view === currentView));
 }
 function buildNav() {
   const nav = document.getElementById('nav');
   nav.innerHTML = '';
   const items = [
-    ['dashboard', t('nav_dashboard'), 'home'], ['wallet', t('nav_wallet'), 'wallet'], ['transfer', t('nav_transfer'), 'send'], ['topup', t('nav_topup'), 'trending-up'],
-    ['history', t('nav_history'), 'credit-card'], ['shipments', t('nav_shipments'), 'package'], ['customs', t('nav_customs'), 'file-text'], ['blockchain', t('nav_blockchain'), 'shield'],
-    ['qr', t('nav_qr'), 'qr-code'], ['notifications', t('nav_notifications'), 'bell'], ['profile', t('nav_profile'), 'user'],
+    ['dashboard', t('nav_home'), 'home'], ['wallet', t('nav_wallet'), 'wallet'],
+    ['transit', t('nav_transit'), 'package'], ['profile', t('nav_profile'), 'user'],
   ];
   items.forEach(([v, label, ic]) => {
     const b = document.createElement('button');
     b.dataset.view = v;
-    b.innerHTML = icon(ic) + ' ' + label;
+    b.innerHTML = icon(ic) + '<span>' + label + '</span>';
     b.addEventListener('click', () => view(v));
     nav.appendChild(b);
   });
@@ -1710,14 +1440,6 @@ function buildNav() {
   document.documentElement.lang = lang;
   matchLang();
   buildNav();
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-action]');
-    if (!btn) return;
-    const a = btn.dataset.action;
-    if (a === 'login') viewLogin();
-    else if (a === 'register') viewRegister();
-    else if (a === 'guest') guestLogin(document.querySelector('.hero'));
-  });
   if (token && user) { setUserLabel(); showNav(true); view('dashboard'); }
   else { setUserLabel(); showNav(false); viewLanding(); }
 })();
