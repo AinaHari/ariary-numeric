@@ -9,13 +9,20 @@ load_dotenv(BASE_DIR.parent / ".env")  # project root .env
 load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-insecure-change-me")
-DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() in ("1", "true", "yes")
+IS_VERCEL = os.getenv("VERCEL", "") == "1" or os.getenv("VERCEL_ENV") is not None
+
+DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() in ("1", "true", "yes") and not IS_VERCEL
 if not DEBUG and SECRET_KEY in ("dev-insecure-change-me", "change-me-in-production", ""):
     raise ImproperlyConfigured(
         "DJANGO_SECRET_KEY must be set to a strong value when DEBUG=False. "
         "Generate one with: python -c \"import secrets; print(secrets.token_urlsafe(64))\""
     )
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",") if h.strip()]
+if IS_VERCEL:
+    ALLOWED_HOSTS += [".vercel.app"]
+    vercel_url = os.getenv("VERCEL_URL", "")
+    if vercel_url:
+        ALLOWED_HOSTS.append(vercel_url)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -150,8 +157,12 @@ BLOCKCHAIN_PRIVATE_KEY = os.getenv("BLOCKCHAIN_PRIVATE_KEY", "")
 BLOCKCHAIN_CONTRACT_ADDRESS = os.getenv("BLOCKCHAIN_CONTRACT_ADDRESS", "")
 
 # File uploads
-MEDIA_ROOT = BASE_DIR / "media"
-MEDIA_URL = "/media/"
+if IS_VERCEL:
+    MEDIA_ROOT = Path("/tmp/media")
+    MEDIA_URL = "/media/"
+else:
+    MEDIA_ROOT = BASE_DIR / "media"
+    MEDIA_URL = "/media/"
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 ALLOWED_UPLOAD_EXTENSIONS = [".pdf", ".png", ".jpg", ".jpeg", ".doc", ".docx"]

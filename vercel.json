@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "buildCommand": "bash build.sh",
+  "builds": [
+    {
+      "src": "backend/api/index.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
+    }
+  ],
+  "routes": [
+    { "src": "/static/(.*)", "dest": "/backend/staticfiles/$1" },
+    { "src": "/media/(.*)", "dest": "/tmp/media/$1" },
+    { "src": "/(.*)", "dest": "backend/api/index.py" }
+  ],
+  "env": {
+    "DJANGO_SETTINGS_MODULE": "config.settings",
+    "PYTHONPATH": "backend"
+  }
+}
