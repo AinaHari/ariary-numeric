@@ -1413,17 +1413,23 @@ async function viewQr() {
   const me = JSON.parse(localStorage.getItem('user') || '{}');
   const email = me.email || '';
   const payload = 'ariary://pay?to=' + email;
-  const card = document.createElement('div'); card.className='card'; card.style.textAlign='center';
-  card.innerHTML = `<h3 class="title">${t('qr_title')}</h3>
-    <p class="muted">${t('qr_code')} : ${email}</p>
-    <canvas id="qrCanvas" style="margin:12px auto;display:block;background:#fff;padding:8px;border-radius:8px"></canvas>
-    <p class="muted" style="word-break:break-all;font-size:11px">${payload}</p>
-    <h4 style="margin-top:16px">${t('qr_scan')}</h4>
-    <label>${t('qr_payload')}</label><input id="qr_input">
-    <label>${t('qr_amount')}</label><input id="qr_amt" type="number" value="100">
-    <div style="margin-top:8px"><button class="primary" id="qr_pay">${t('qr_pay')}</button></div>`;
+  const card = document.createElement('div'); card.className='card';
+  card.style.textAlign = 'center';
+  card.innerHTML = `
+    <h3 class="title">${t('qr_title')}</h3>
+    <p class="muted" style="margin-bottom:16px">${t('qr_code')} : <b style="color:var(--accent)">${email}</b></p>
+    <div style="background:#fff;padding:16px;border-radius:12px;display:inline-block;margin-bottom:16px">
+      <canvas id="qrCanvas" style="display:block"></canvas>
+    </div>
+    <p class="muted" style="word-break:break-all;font-size:11px;margin-bottom:20px">${payload}</p>
+    <div style="border-top:1px solid var(--border);padding-top:16px">
+      <h4 style="margin:0 0 12px;color:var(--text)">${t('qr_scan')}</h4>
+      <label>${t('qr_payload')}</label><input id="qr_input" placeholder="Collez le code scanné">
+      <label>${t('qr_amount')}</label><input id="qr_amt" type="number" value="100" min="1">
+      <div style="margin-top:12px"><button class="primary" id="qr_pay" style="width:100%">${icon('send')} ${t('qr_pay')}</button></div>
+    </div>`;
   main.appendChild(card);
-  try { if (window.QRCode) QRCode.toCanvas(document.getElementById('qrCanvas'), payload, { width: 220 }); } catch(e) {}
+  try { if (window.QRCode) QRCode.toCanvas(document.getElementById('qrCanvas'), payload, { width: 200, margin: 1 }); } catch(e) {}
   document.getElementById('qr_pay').addEventListener('click', async () => {
     const val = parseFloat(document.getElementById('qr_amt').value);
     let to = document.getElementById('qr_input').value.trim();
