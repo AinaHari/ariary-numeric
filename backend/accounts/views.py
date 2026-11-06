@@ -74,6 +74,8 @@ class RegisterView(generics.CreateAPIView):
 
 class LoginView(APIView):
     permission_classes = (permissions.AllowAny,)
+    throttle_classes = (ScopedRateThrottle,)
+    throttle_scope = "login"
 
     def post(self, request):
         email = (request.data.get("email") or "").strip().lower()

@@ -2,6 +2,7 @@ import hashlib
 import os
 
 from django.conf import settings
+from django.utils import timezone
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -99,6 +100,36 @@ def verify_on_chain(data_hash_hex: str) -> bool | None:
         return None
 
 
+def check_tx_receipt(tx_hash: str) -> str:
+    """Check transaction receipt. Returns 'confirmed', 'failed', or 'pending'."""
+    w3, contract = get_web3_and_contract()
+    if not w3:
+        return "pending"
+    try:
+        receipt = w3.eth.get_transaction_receipt(tx_hash)
+        if receipt is None:
+            return "pending"
+        if receipt.status == 1:
+            return "confirmed"
+        return "failed"
+    except Exception:
+        return "pending"
+    """Verify a hash on-chain. Returns True/False if on-chain, None if not configured."""
+    w3, contract = get_web3_and_contract()
+    if not w3 or not contract:
+        return None
+    try:
+        from web3 import Web3
+        hash_bytes = bytes.fromhex(data_hash_hex)
+        if len(hash_bytes) < 32:
+            hash_bytes = hash_bytes.ljust(32, b'\x00')
+        elif len(hash_bytes) > 32:
+            hash_bytes = hash_bytes[:32]
+        return contract.functions.verify(hash_bytes).call()
+    except Exception:
+        return None
+
+
 class BlockchainInfoView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -171,7 +202,18 @@ class BlockchainVerifyView(APIView):
             # Try on-chain verification first
             on_chain = verify_on_chain(data_hash)
             if on_chain is not None:
-                return Response({"verified": on_chain, "record_id": rec.id, "status": rec.status, "data_hash": rec.data_hash, "on_chain": True})
+                # Also check receipt status if tx_hash exists
+                receipt_status = None
+                if rec.tx_hash:
+                    receipt_status = check_tx_receipt(rec.tx_hash)
+                    if receipt_status == "confirmed" and rec.status != BlockchainRecord.STATUS_CONFIRMED:
+                        rec.status = BlockchainRecord.STATUS_CONFIRMED
+                        rec.confirmed_at = timezone.now()
+                        rec.save(update_fields=["status", "confirmed_at"])
+                    elif receipt_status == "failed" and rec.status != BlockchainRecord.STATUS_FAILED:
+                        rec.status = BlockchainRecord.STATUS_FAILED
+                        rec.save(update_fields=["status"])
+                return Response({"verified": on_chain, "record_id": rec.id, "status": rec.status, "data_hash": rec.data_hash, "on_chain": True, "receipt_status": receipt_status})
             recomputed = sha256_hex(str(payload)) if payload is not None else data_hash
             ok = recomputed == rec.data_hash
             return Response({"verified": ok, "record_id": rec.id, "status": rec.status, "data_hash": rec.data_hash, "on_chain": False})
@@ -190,6 +232,48 @@ class BlockchainVerifyView(APIView):
 
 
 class BlockchainRecordDetailView(generics.RetrieveAPIView):
+    serializer_class = BlockchainRecordSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return BlockchainRecord.objects.filter(owner=self.request.user)
+
+
+class BlockchainRefreshView(APIView):
+    """Refresh confirmation status of pending records based on transaction receipts."""
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        updated = 0
+        for rec in BlockchainRecord.objects.filter(owner=request.user, status=BlockchainRecord.STATUS_PENDING).exclude(tx_hash=""):
+            result = check_tx_receipt(rec.tx_hash)
+            if result == "confirmed":
+                rec.status = BlockchainRecord.STATUS_CONFIRMED
+                rec.confirmed_at = timezone.now()
+                rec.save(update_fields=["status", "confirmed_at"])
+                updated += 1
+            elif result == "failed":
+                rec.status = BlockchainRecord.STATUS_FAILED
+                rec.save(update_fields=["status"])
+                updated += 1
+        return Response({"updated": updated, "checked": BlockchainRecord.objects.filter(owner=request.user, status=BlockchainRecord.STATUS_PENDING).count()})
+    """Refresh confirmation status of pending records based on transaction receipts."""
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        updated = 0
+        for rec in BlockchainRecord.objects.filter(owner=request.user, status=BlockchainRecord.STATUS_PENDING).exclude(tx_hash=""):
+            result = check_tx_receipt(rec.tx_hash)
+            if result == "confirmed":
+                rec.status = BlockchainRecord.STATUS_CONFIRMED
+                rec.confirmed_at = timezone.now()
+                rec.save(update_fields=["status", "confirmed_at"])
+                updated += 1
+            elif result == "failed":
+                rec.status = BlockchainRecord.STATUS_FAILED
+                rec.save(update_fields=["status"])
+                updated += 1
+        return Response({"updated": updated, "checked": BlockchainRecord.objects.filter(owner=request.user, status=BlockchainRecord.STATUS_PENDING).count()})
     serializer_class = BlockchainRecordSerializer
     permission_classes = (permissions.IsAuthenticated,)
 

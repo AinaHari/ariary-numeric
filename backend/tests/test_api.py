@@ -15,6 +15,9 @@ from wallet.models import Transaction, Wallet
 # Django recommande un hachage de test rapide : https://docs.djangoproject.com/en/stable/topics/testing/advanced/#speeding-up-tests
 FAST_PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
+# Désactiver la limitation de débit pendant les tests (sinon les 49 tests dépassent 10/min).
+FAST_THROTTLE_RATES = {"anon": "10000/min", "user": "10000/min", "login": "10000/min", "guest": "10000/min"}
+
 
 class BaseTestCase(TestCase):
     """TestCase avec hachage de mot de passe rapide (répété ~40 fois dans la suite)."""
@@ -23,6 +26,13 @@ class BaseTestCase(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.enterClassContext(override_settings(PASSWORD_HASHERS=FAST_PASSWORD_HASHERS))
+        cls.enterClassContext(override_settings(REST_FRAMEWORK={
+            "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.SessionAuthentication", "rest_framework.authentication.TokenAuthentication"),
+            "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+            "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+            "PAGE_SIZE": 20,
+            "DEFAULT_THROTTLE_RATES": FAST_THROTTLE_RATES,
+        }))
 
 
 def make_user(email="u@example.com", password="TestPass123!"):
@@ -508,6 +518,13 @@ class BaseTransactionTestCase(TransactionTestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.enterClassContext(override_settings(PASSWORD_HASHERS=FAST_PASSWORD_HASHERS))
+        cls.enterClassContext(override_settings(REST_FRAMEWORK={
+            "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.SessionAuthentication", "rest_framework.authentication.TokenAuthentication"),
+            "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+            "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+            "PAGE_SIZE": 20,
+            "DEFAULT_THROTTLE_RATES": FAST_THROTTLE_RATES,
+        }))
 
 
 class TransferConcurrencyTests(BaseTransactionTestCase):
@@ -560,6 +577,66 @@ class TransferConcurrencyTests(BaseTransactionTestCase):
         self.assertEqual(Transaction.objects.filter(idempotency_key=key).count(), 1, "une seule transaction")
         self.assertEqual(Wallet.objects.get(user=self.sender).balance, Decimal("9900.00"), "débité une seule fois")
         self.assertEqual(Wallet.objects.get(user=self.recipient).balance, Decimal("100.00"), "crédité une seule fois")
+
+
+class IdempotencyScopingTests(BaseTestCase):
+    """La clé d'idempotence est scopée au propriétaire (audit ChatGPT)."""
+
+    def setUp(self):
+        self.c1 = APIClient()
+        self.c2 = APIClient()
+        make_user("scope-a@example.com")
+        make_user("scope-b@example.com")
+        t1 = self.c1.post("/api/v1/accounts/login/", {"email": "scope-a@example.com", "password": "TestPass123!"}).json()["token"]
+        t2 = self.c2.post("/api/v1/accounts/login/", {"email": "scope-b@example.com", "password": "TestPass123!"}).json()["token"]
+        self.c1.credentials(HTTP_AUTHORIZATION=f"Token {t1}")
+        self.c2.credentials(HTTP_AUTHORIZATION=f"Token {t2}")
+        self.c1.post("/api/v1/wallet/topup-demo/", {"amount": "1000"})
+        self.c2.post("/api/v1/wallet/topup-demo/", {"amount": "1000"})
+
+    def test_same_key_different_users_no_collision(self):
+        key = str(uuid.uuid4())
+        # User A transfers with key
+        r1 = self.c1.post("/api/v1/wallet/transfer/", {"recipient_email": "scope-b@example.com", "amount": "100", "idempotency_key": key})
+        self.assertEqual(r1.status_code, 201)
+        # User B uses the SAME key — should create a NEW transaction (not collide)
+        r2 = self.c2.post("/api/v1/wallet/transfer/", {"recipient_email": "scope-a@example.com", "amount": "50", "idempotency_key": key})
+        self.assertEqual(r2.status_code, 201)
+        self.assertNotEqual(r1.json()["reference"], r2.json()["reference"])
+        # Two distinct transactions
+        self.assertEqual(Transaction.objects.filter(idempotency_key=key).count(), 2)
+
+    def test_replay_same_user_returns_same_tx(self):
+        key = str(uuid.uuid4())
+        r1 = self.c1.post("/api/v1/wallet/transfer/", {"recipient_email": "scope-b@example.com", "amount": "100", "idempotency_key": key})
+        r2 = self.c1.post("/api/v1/wallet/transfer/", {"recipient_email": "scope-b@example.com", "amount": "100", "idempotency_key": key})
+        self.assertEqual(r1.json()["reference"], r2.json()["reference"])
+        self.assertEqual(Transaction.objects.filter(idempotency_key=key, sender__email="scope-a@example.com").count(), 1)
+
+
+class BlockchainRefreshTests(BaseTestCase):
+    """Endpoint de rafraîchissement des statuts blockchain."""
+
+    def setUp(self):
+        self.client = APIClient()
+        make_user("br@example.com")
+        t = self.client.post("/api/v1/accounts/login/", {"email": "br@example.com", "password": "TestPass123!"}).json()["token"]
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {t}")
+
+    def test_refresh_returns_counts(self):
+        # Create a record first
+        r = self.client.post("/api/v1/blockchain/records/", {"record_type": "document", "payload": "test-refresh"})
+        self.assertEqual(r.status_code, 201)
+        # Refresh (no RPC configured → no updates, but endpoint works)
+        r2 = self.client.post("/api/v1/blockchain/refresh/", {})
+        self.assertEqual(r2.status_code, 200)
+        self.assertIn("updated", r2.json())
+        self.assertIn("checked", r2.json())
+
+    def test_refresh_requires_auth(self):
+        c = APIClient()
+        r = c.post("/api/v1/blockchain/refresh/", {})
+        self.assertIn(r.status_code, (401, 403))
 
 
 class GuestAccessTests(BaseTestCase):

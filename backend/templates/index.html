@@ -1512,7 +1512,8 @@ async function viewBlockchain() {
   const payloadIn = document.createElement('input'); payloadIn.placeholder = t('bc_data');
   const btnRec = document.createElement('button'); btnRec.className='primary'; btnRec.textContent = t('bc_save');
   const btnVer = document.createElement('button'); btnVer.textContent = t('bc_verify'); btnVer.style.marginLeft='8px';
-  c2.appendChild(typeIn); c2.appendChild(payloadIn); c2.appendChild(document.createElement('br')); c2.appendChild(btnRec); c2.appendChild(btnVer);
+  const btnRef = document.createElement('button'); btnRef.textContent = '↻ Actualiser'; btnRef.style.marginLeft='8px';
+  c2.appendChild(typeIn); c2.appendChild(payloadIn); c2.appendChild(document.createElement('br')); c2.appendChild(btnRec); c2.appendChild(btnVer); c2.appendChild(btnRef);
   const resDiv = document.createElement('div'); c2.appendChild(resDiv);btnRec.addEventListener('click', async () => {
     const res = await api('POST','/blockchain/records/', { record_type: typeIn.value || 'document', payload: payloadIn.value });
     resDiv.innerHTML = ''; resDiv.appendChild(msg(res.status===201||res.status===200 ? (res.data.message||'OK') : fmtErr(res), res.status===201||res.status===200));
@@ -1520,6 +1521,11 @@ async function viewBlockchain() {
   });btnVer.addEventListener('click', async () => {
     const res = await api('POST','/blockchain/verify/', { payload: payloadIn.value });
     resDiv.innerHTML = ''; resDiv.appendChild(msg(res.status===200 ? (t('bc_verify')+': '+res.data.verified+' ('+res.data.status+')') : fmtErr(res), res.status===200 && res.data.verified));
+  });
+  btnRef.addEventListener('click', async () => {
+    const res = await api('POST','/blockchain/refresh/', {});
+    resDiv.innerHTML = ''; resDiv.appendChild(msg(res.status===200 ? ('Statuts mis à jour: '+res.data.updated+' (en attente: '+res.data.checked+')') : fmtErr(res), res.status===200));
+    viewBlockchain();
   });
   main.appendChild(c2);
   const c3 = document.createElement('div'); c3.className='card';

@@ -6,4 +6,5 @@ urlpatterns = [
     path("records/", views.BlockchainRecordListCreateView.as_view(), name="blockchain-records"),
     path("records/<int:pk>/", views.BlockchainRecordDetailView.as_view(), name="blockchain-record-detail"),
     path("verify/", views.BlockchainVerifyView.as_view(), name="blockchain-verify"),
+    path("refresh/", views.BlockchainRefreshView.as_view(), name="blockchain-refresh"),
 ]

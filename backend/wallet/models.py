@@ -48,12 +48,19 @@ class Transaction(models.Model):
     kind = models.CharField(max_length=20, choices=KIND_CHOICES, default=KIND_TRANSFER)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     description = models.CharField(max_length=255, blank=True)
-    idempotency_key = models.CharField(max_length=128, unique=True, null=True, blank=True)
+    idempotency_key = models.CharField(max_length=128, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["sender", "idempotency_key"],
+                condition=models.Q(idempotency_key__isnull=False) & ~models.Q(idempotency_key=""),
+                name="unique_idempotency_per_sender",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.reference} {self.amount} {self.currency} ({self.status})"

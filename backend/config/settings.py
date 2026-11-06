@@ -122,6 +122,7 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 20,
     "DEFAULT_THROTTLE_RATES": {
         "guest": "60/hour",
+        "login": "1000/minute",
     },
 }
 
