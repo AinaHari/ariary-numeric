@@ -12,6 +12,10 @@ urlpatterns = [
     path("healthz/", config_views.healthz, name="healthz"),
     path("api/", config_views.api_index, name="api-index"),
     path("api/v1/", config_views.api_index, name="api-index-v1"),
+    # SPA routes with language prefix (for refresh/bookmark support)
+    path("<str:lang>/", TemplateView.as_view(template_name="index.html"), name="spa-home"),
+    path("<str:lang>/<str:view>/", TemplateView.as_view(template_name="index.html"), name="spa-view"),
+    path("<str:lang>/<str:view>/<str:sub>/", TemplateView.as_view(template_name="index.html"), name="spa-sub"),
     path("admin/", admin.site.urls),
     path("api/v1/accounts/", include("accounts.urls")),
     path("api/v1/wallet/", include("wallet.urls")),

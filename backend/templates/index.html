@@ -365,6 +365,13 @@ td.text { font-family: var(--font); }
       <div class="greeting">Portefeuille numérique · Madagascar</div>
     </div>
   </div>
+  <nav class="header-nav" id="headerNav" style="display:flex;gap:4px;align-items:center">
+    <button class="ghost" id="hAccueil" style="padding:6px 12px;font-size:12px">Accueil</button>
+    <button class="ghost" id="hServices" style="padding:6px 12px;font-size:12px">Nos services</button>
+    <button class="ghost" id="hAbout" style="padding:6px 12px;font-size:12px">À propos</button>
+    <button class="ghost" id="hLogin" style="padding:6px 12px;font-size:12px">Connexion</button>
+    <button class="primary" id="hSignup" style="padding:6px 12px;font-size:12px">Créer un compte</button>
+  </nav>
   <div class="right">
     <select class="lang" id="langSel" title="Language">
       <option value="fr">FR</option>
@@ -608,6 +615,12 @@ function setLang(l, syncServer=true) {
   buildNav(); if (user) setUserLabel();
   if (currentView) view(currentView); else viewLanding();
   if (user && syncServer) api('PATCH', '/accounts/me/', { preferred_language: l });
+  // Update URL with new language
+  const viewName = currentView || 'landing';
+  let path = '/' + l + '/';
+  if (viewName && viewName !== 'landing') path += viewName + '/';
+  else if (!token || !user) path = '/' + l + '/';
+  if (location.pathname !== path) history.replaceState({view: viewName, lang: l}, '', path);
 }
 function matchLang() { const sel = document.getElementById('langSel'); sel.onchange = () => setLang(sel.value); }
 
@@ -624,7 +637,14 @@ async function api(method, path, body) {
 function msg(text, ok=true) { const d = document.createElement('div'); d.className='msg ' + (ok ? 'ok' : 'err'); d.textContent = text; return d; }
 function clearMain() { document.getElementById('main').innerHTML = ''; }
 function showNav(show) { /* bottom nav always visible when logged in */ document.getElementById('nav').classList.toggle('hidden', !show); }
-function setUserLabel() { document.getElementById('userLabel').textContent = user ? (user.first_name || user.email) : 'Invité'; }
+function setUserLabel() {
+  document.getElementById('userLabel').textContent = user ? (user.first_name || user.email) : 'Invité';
+  // Show/hide auth buttons based on login state
+  const hLogin = document.getElementById('hLogin');
+  const hSignup = document.getElementById('hSignup');
+  if (hLogin) hLogin.style.display = user ? 'none' : '';
+  if (hSignup) hSignup.style.display = user ? 'none' : '';
+}
 function fmtErr(res) {
   if (!res || res.status === 0) return t('err_unreachable');
   const d = res.data;
@@ -639,6 +659,8 @@ function paginateToItems(res) { return (res && res.data && res.data.results) ? r
 // ---------- Landing ----------
 function viewLanding() {
   clearMain();
+  currentView = 'landing';
+  updateUrl(currentView);
   showNav(false);
   const main = document.getElementById('main');
 
@@ -758,7 +780,7 @@ async function guestLogin(container) {
 
 // ---------- Auth ----------
 function viewLogin() {
-  clearMain(); currentView = 'login';
+  clearMain(); currentView = 'login'; updateUrl(currentView);
   const box = document.createElement('div'); box.className='login-box card';
   box.innerHTML = `
     <h2 class="title">${t('login')}</h2>
@@ -779,7 +801,7 @@ function viewLogin() {
   document.getElementById('go_reg').addEventListener('click', (e) => { e.preventDefault(); viewRegister(); });
 }
 function viewRegister() {
-  clearMain(); currentView = 'register';
+  clearMain(); currentView = 'register'; updateUrl(currentView);
   const box = document.createElement('div'); box.className='login-box card';
   box.innerHTML = `
     <h2 class="title">${t('reg')}</h2>
@@ -804,7 +826,7 @@ function viewRegister() {
 
 // ---------- Dashboard (Accueil) ----------
 async function viewDashboard() {
-  clearMain(); currentView = 'dashboard';
+  clearMain(); currentView = 'dashboard'; updateUrl(currentView);
   const main = document.getElementById('main');
   const w = await api('GET','/wallet/wallet/');
   const n = await api('GET','/notifications/');
@@ -883,7 +905,7 @@ async function viewDashboard() {
 
 // ---------- Wallet (Portefeuille) ----------
 async function viewWallet() {
-  clearMain(); currentView = 'wallet';
+  clearMain(); currentView = 'wallet'; updateUrl(currentView);
   const main = document.getElementById('main');
   const w = await api('GET','/wallet/wallet/');
   const card = document.createElement('div'); card.className='balance-card';
@@ -936,7 +958,7 @@ async function viewWallet() {
 
 // ---------- Transfer ----------
 async function viewTransfer() {
-  clearMain(); currentView = 'transfer';
+  clearMain(); currentView = 'transfer'; updateUrl(currentView);
   const main = document.getElementById('main');
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<h3 class="title">${t('tr_title')}</h3>
@@ -958,7 +980,7 @@ async function viewTransfer() {
 
 // ---------- Topup ----------
 async function viewTopup() {
-  clearMain(); currentView = 'topup';
+  clearMain(); currentView = 'topup'; updateUrl(currentView);
   const main = document.getElementById('main');
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<div class="demo-banner"><span class="ic">⚠️</span><div><strong>Portefeuille de démonstration</strong> — cet argent n'est pas réel. Aucun dépôt bancaire ni retrait réel n'est effectué.</div></div>
@@ -986,7 +1008,7 @@ async function viewTopup() {
 
 // ---------- History ----------
 async function viewHistory() {
-  clearMain(); currentView = 'history';
+  clearMain(); currentView = 'history'; updateUrl(currentView);
   const main = document.getElementById('main');
   const tx = await api('GET','/wallet/transactions/');
   const card = document.createElement('div'); card.className='card';
@@ -1009,7 +1031,7 @@ async function viewHistory() {
 
 // ---------- Tx detail ----------
 async function viewTxdetail() {
-  clearMain(); currentView = 'txdetail';
+  clearMain(); currentView = 'txdetail'; updateUrl(currentView);
   const main = document.getElementById('main');
   const ref = localStorage.getItem('selected_tx');
   const r = await api('GET','/wallet/transactions/'+ref+'/');
@@ -1035,7 +1057,7 @@ async function viewTxdetail() {
 
 // ---------- Transit (centralized page) ----------
 async function viewTransit() {
-  clearMain(); currentView = 'transit';
+  clearMain(); currentView = 'transit'; updateUrl(currentView);
   const main = document.getElementById('main');
   // Shipments section
   const shipCard = document.createElement('div'); shipCard.className='card';
@@ -1088,7 +1110,7 @@ async function viewTransit() {
 // ---------- Shipment create/detail (kept from before) ----------
 async function viewShipments() { view('transit'); }
 async function viewShipmentcreate() {
-  clearMain(); currentView = 'shipmentcreate';
+  clearMain(); currentView = 'shipmentcreate'; updateUrl(currentView);
   const main = document.getElementById('main');
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<h3 class="title">${t('ship_new')}</h3>
@@ -1108,7 +1130,7 @@ async function viewShipmentcreate() {
   });
 }
 async function viewShipmentdetail() {
-  clearMain(); currentView = 'shipmentdetail';
+  clearMain(); currentView = 'shipmentdetail'; updateUrl(currentView);
   const main = document.getElementById('main');
   const ref = localStorage.getItem('selected_shipment');
   const r = await api('GET','/logistics/shipments/'+ref+'/');
@@ -1162,7 +1184,7 @@ async function viewShipmentdetail() {
 // ---------- Customs (integrated into transit, but keep standalone) ----------
 async function viewCustoms() { view('transit'); }
 async function viewCustomscreate() {
-  clearMain(); currentView = 'customscreate';
+  clearMain(); currentView = 'customscreate'; updateUrl(currentView);
   const main = document.getElementById('main');
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<h3 class="title">${t('cust_new')}</h3>
@@ -1180,7 +1202,7 @@ async function viewCustomscreate() {
   });
 }
 async function viewCustomsdetail() {
-  clearMain(); currentView = 'customsdetail';
+  clearMain(); currentView = 'customsdetail'; updateUrl(currentView);
   const main = document.getElementById('main');
   const ref = localStorage.getItem('selected_customs');
   const r = await api('GET','/customs/cases/'+ref+'/');
@@ -1240,7 +1262,7 @@ async function viewCustomsdetail() {
 
 // ---------- Blockchain (advanced section) ----------
 async function viewBlockchain() {
-  clearMain(); currentView = 'blockchain';
+  clearMain(); currentView = 'blockchain'; updateUrl(currentView);
   const main = document.getElementById('main');
   const info = await api('GET','/blockchain/info/');
   const recs = await api('GET','/blockchain/records/');
@@ -1293,7 +1315,7 @@ async function viewBlockchain() {
 
 // ---------- Payments ----------
 async function viewPayments() {
-  clearMain(); currentView = 'payments';
+  clearMain(); currentView = 'payments'; updateUrl(currentView);
   const main = document.getElementById('main');
   const info = await api('GET','/payments/mobile-money/info/');
   const rates = await api('GET','/payments/rates/');
@@ -1340,7 +1362,7 @@ async function viewPayments() {
 
 // ---------- Notifications ----------
 async function viewNotifications() {
-  clearMain(); currentView = 'notifications';
+  clearMain(); currentView = 'notifications'; updateUrl(currentView);
   const main = document.getElementById('main');
   const r = await api('GET','/notifications/');
   const card = document.createElement('div'); card.className='card';
@@ -1363,7 +1385,7 @@ async function viewNotifications() {
 
 // ---------- Profile (centralized) ----------
 async function viewProfile() {
-  clearMain(); currentView = 'profile';
+  clearMain(); currentView = 'profile'; updateUrl(currentView);
   const main = document.getElementById('main');
   const r = await api('GET','/accounts/me/');
   const card = document.createElement('div'); card.className='card';
@@ -1415,7 +1437,7 @@ async function viewProfile() {
 
 // ---------- QR Code ----------
 async function viewQr() {
-  clearMain(); currentView = 'qr';
+  clearMain(); currentView = 'qr'; updateUrl(currentView);
   const main = document.getElementById('main');
   const me = JSON.parse(localStorage.getItem('user') || '{}');
   const email = me.email || '';
@@ -1451,7 +1473,7 @@ async function viewQr() {
 
 // ---------- Security / Settings / Support (placeholders) ----------
 async function viewSecurity() {
-  clearMain(); currentView = 'security';
+  clearMain(); currentView = 'security'; updateUrl(currentView);
   const main = document.getElementById('main');
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<h3 class="title">${t('prof_security')}</h3>
@@ -1473,7 +1495,7 @@ async function requestEmailVerify() {
   alert(res.data.detail || fmtErr(res));
 }
 async function viewSettings() {
-  clearMain(); currentView = 'settings';
+  clearMain(); currentView = 'settings'; updateUrl(currentView);
   const main = document.getElementById('main');
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<h3 class="title">${t('prof_settings')}</h3>
@@ -1484,7 +1506,7 @@ async function viewSettings() {
   document.getElementById('set_save').addEventListener('click', () => setLang(document.getElementById('set_lang').value));
 }
 async function viewSupport() {
-  clearMain(); currentView = 'support';
+  clearMain(); currentView = 'support'; updateUrl(currentView);
   const main = document.getElementById('main');
   const card = document.createElement('div'); card.className='card';
   card.innerHTML = `<h3 class="title">${t('prof_support')}</h3>
@@ -1512,6 +1534,32 @@ function view(name) {
   if (views[currentView]) views[currentView]();
   else viewDashboard();
   document.querySelectorAll('.bottom-nav button').forEach(x => x.classList.toggle('active', x.dataset.view === currentView));
+  // Update URL without reload
+  updateUrl(currentView);
+}
+function updateUrl(viewName) {
+  const langCode = lang || 'fr';
+  let path = '/' + langCode + '/';
+  if (viewName && viewName !== 'landing' && viewName !== 'dashboard') {
+    path += viewName + '/';
+  } else if (viewName === 'dashboard') {
+    path += 'dashboard/';
+  }
+  if (location.pathname !== path) {
+    history.pushState({view: viewName, lang: langCode}, '', path);
+  }
+}
+function parseUrl() {
+  const parts = location.pathname.split('/').filter(Boolean);
+  let urlLang = 'fr';
+  let urlView = null;
+  if (parts.length >= 1 && ['fr','mg','en'].includes(parts[0])) {
+    urlLang = parts[0];
+    if (parts.length >= 2) {
+      urlView = parts[1];
+    }
+  }
+  return { lang: urlLang, view: urlView };
 }
 function buildNav() {
   const nav = document.getElementById('nav');
@@ -1532,15 +1580,36 @@ function buildNav() {
 
 // ---------- Boot ----------
 (function boot() {
+  const { lang: urlLang, view: urlView } = parseUrl();
+  if (urlLang) lang = urlLang;
   if (!lang) lang = (user && user.preferred_language) || 'fr';
   lang = I18N[lang] ? lang : 'fr';
   document.getElementById('langSel').value = lang;
   document.documentElement.lang = lang;
   matchLang();
   buildNav();
-  if (token && user) { setUserLabel(); showNav(true); view('dashboard'); }
+  // Header nav handlers
+  const hAccueil = document.getElementById('hAccueil');
+  const hServices = document.getElementById('hServices');
+  const hAbout = document.getElementById('hAbout');
+  const hLogin = document.getElementById('hLogin');
+  const hSignup = document.getElementById('hSignup');
+  if (hAccueil) hAccueil.addEventListener('click', () => { if (token && user) view('dashboard'); else viewLanding(); });
+  if (hServices) hServices.addEventListener('click', () => { const fg = document.querySelector('.feat-grid'); if (fg) fg.scrollIntoView({behavior:'smooth'}); });
+  if (hAbout) hAbout.addEventListener('click', () => { const f = document.querySelector('footer') || document.querySelector('[style*="border-top"]'); if (f) f.scrollIntoView({behavior:'smooth'}); });
+  if (hLogin) hLogin.addEventListener('click', () => viewLogin());
+  if (hSignup) hSignup.addEventListener('click', () => viewRegister());
+  if (token && user) { setUserLabel(); showNav(true); view(urlView || 'dashboard'); }
   else { setUserLabel(); showNav(false); viewLanding(); }
 })();
+// Handle browser back/forward
+window.addEventListener('popstate', (e) => {
+  const { lang: l, view: v } = parseUrl();
+  if (l) { lang = l; document.getElementById('langSel').value = l; }
+  if (v && views[v]) view(v);
+  else if (token && user) view('dashboard');
+  else viewLanding();
+});
 </script>
 </body>
 </html>
