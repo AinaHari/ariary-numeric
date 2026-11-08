@@ -664,25 +664,6 @@ function viewLanding() {
   showNav(false);
   const main = document.getElementById('main');
 
-  // Public header
-  const pubNav = document.createElement('div');
-  pubNav.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 0;margin-bottom:24px;flex-wrap:wrap;gap:12px';
-  pubNav.innerHTML = `
-    <div style="display:flex;align-items:center;gap:8px">
-      <div style="width:32px;height:32px;border-radius:6px;background:var(--accent);display:flex;align-items:center;justify-content:center">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
-      </div>
-      <span style="font-size:18px;font-weight:800;color:var(--text)">Ariary Numeric</span>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <button class="ghost" id="pubHome" style="padding:8px 14px">Accueil</button>
-      <button class="ghost" id="pubServices" style="padding:8px 14px">Nos services</button>
-      <button class="ghost" id="pubAbout" style="padding:8px 14px">À propos</button>
-      <button class="ghost" id="pubLogin" style="padding:8px 14px">Connexion</button>
-      <button class="primary" id="pubSignup" style="padding:8px 16px">Créer un compte</button>
-    </div>`;
-  main.appendChild(pubNav);
-
   // Hero
   const hero = document.createElement('div'); hero.className='hero';
   hero.style.padding = '48px 32px';
@@ -748,11 +729,6 @@ function viewLanding() {
   main.appendChild(footer);
 
   // Event handlers
-  document.getElementById('pubLogin').addEventListener('click', () => viewLogin());
-  document.getElementById('pubSignup').addEventListener('click', () => viewRegister());
-  document.getElementById('pubHome').addEventListener('click', () => viewLanding());
-  document.getElementById('pubServices').addEventListener('click', () => { svcSection.scrollIntoView({behavior:'smooth'}); });
-  document.getElementById('pubAbout').addEventListener('click', () => { footer.scrollIntoView({behavior:'smooth'}); });
   document.getElementById('heroSignup').addEventListener('click', () => viewRegister());
   document.getElementById('ctaSignup').addEventListener('click', () => viewRegister());
 }
