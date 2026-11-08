@@ -1,0 +1,342 @@
+/* Animations for Ariary Numeric Presentation */
+
+/* Fade in */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Scale */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
+}
+
+/* Slide */
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Pulse */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(25, 184, 121, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(25, 184, 121, 0.6); }
+}
+
+/* Typing cursor */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Light sweep */
+@keyframes lightSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Float */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Rotate */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Utility classes */
+.animate-fadeIn { animation: fadeIn 0.6s ease forwards; }
+.animate-fadeInUp { animation: fadeInUp 0.6s ease forwards; }
+.animate-fadeInDown { animation: fadeInDown 0.6s ease forwards; }
+.animate-fadeInLeft { animation: fadeInLeft 0.6s ease forwards; }
+.animate-fadeInRight { animation: fadeInRight 0.6s ease forwards; }
+.animate-scaleIn { animation: scaleIn 0.5s ease forwards; }
+.animate-pulse { animation: pulse 2s ease-in-out infinite; }
+.animate-glow { animation: glow 2s ease-in-out infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-lightSweep { animation: lightSweep 2s ease-in-out; }
+
+/* Delay classes */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+.delay-700 { animation-delay: 0.7s; }
+.delay-800 { animation-delay: 0.8s; }
+.delay-900 { animation-delay: 0.9s; }
+.delay-1000 { animation-delay: 1.0s; }
+
+/* Cursor */
+.cursor {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s ease;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.cursor.clicking {
+  transform: scale(0.8);
+}
+
+/* Subtitle */
+.subtitle-container {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 80%;
+  text-align: center;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.subtitle {
+  background: rgba(0, 0, 0, 0.75);
+  color: #FFFFFF;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.subtitle.visible {
+  opacity: 1;
+}
+
+/* Scene transition overlays */
+.scene-transition {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+  transition: opacity 0.5s ease;
+}
+
+.scene-transition.active {
+  opacity: 1;
+}
+
+/* Blockchain animation */
+.block-chain {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.block {
+  width: 60px;
+  height: 60px;
+  background: var(--bg-3);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--accent);
+  font-family: var(--mono);
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.4s ease;
+}
+
+.block.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.block-connector {
+  width: 30px;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.block-connector.visible {
+  opacity: 1;
+}
+
+/* QR Code animation */
+.qr-container {
+  width: 200px;
+  height: 200px;
+  background: white;
+  border-radius: 8px;
+  padding: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.qr-scan-line {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: scanLine 2s ease-in-out infinite;
+}
+
+@keyframes scanLine {
+  0% { top: 0; }
+  50% { top: 100%; }
+  100% { top: 0; }
+}
+
+/* Timeline / Progress */
+.timeline {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.timeline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bg-4);
+  transition: background 0.3s ease;
+}
+
+.timeline-dot.active {
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(25, 184, 121, 0.5);
+}
+
+.timeline-dot.completed {
+  background: var(--green);
+}
+
+/* Notification popup */
+.notification-popup {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: var(--bg-3);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(120%);
+  transition: transform 0.4s ease;
+  z-index: 100;
+}
+
+.notification-popup.visible {
+  transform: translateX(0);
+}
+
+/* Map / Tracking */
+.map-container {
+  width: 100%;
+  height: 300px;
+  background: var(--bg-3);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.map-route {
+  position: absolute;
+  top: 50%; left: 10%; right: 10%;
+  height: 2px;
+  background: var(--bg-4);
+}
+
+.map-ship {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 24px;
+  transition: left 3s ease;
+}
+
+/* Light effect */
+.light-beam {
+  position: absolute;
+  top: 0;
+  width: 100px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(25,184,121,0.1), transparent);
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Typing effect */
+.typing-text {
+  border-right: 2px solid var(--accent);
+  animation: blink 0.8s step-end infinite;
+}
+
+/* Card flip */
+@keyframes cardFlip {
+  0% { transform: rotateY(0deg); }
+  50% { transform: rotateY(90deg); }
+  100% { transform: rotateY(0deg); }
+}
+
+.animate-cardFlip { animation: cardFlip 0.8s ease; }
+
+/* Shield animation */
+@keyframes shieldPulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(25,184,121,0.3)); }
+  50% { transform: scale(1.1); filter: drop-shadow(0 0 15px rgba(25,184,121,0.6)); }
+}
+
+.animate-shieldPulse { animation: shieldPulse 2s ease-in-out infinite; }

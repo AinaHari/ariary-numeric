@@ -721,6 +721,7 @@ function viewLanding() {
     '<a href="#" class="link" style="font-size:13px">Contact</a>' +
     '<a href="#" class="link" style="font-size:13px">Confidentialité</a>' +
     '<a href="#" class="link" style="font-size:13px">Conditions d\'utilisation</a>' +
+    '<a href="/presentation/" target="_blank" class="link" style="font-size:13px">🎬 Présentation</a>' +
     '</div><p class="muted" style="font-size:11px">© 2026 Ariary Numeric — Portefeuille de démonstration, aucun argent réel.</p>';
   main.appendChild(footer);
 
@@ -856,11 +857,17 @@ async function viewDashboard() {
   const svcGrid = document.createElement('div'); svcGrid.className='feat-grid';
   const svcItems = [
     ['Transferts internationaux','payments','globe'],['Blockchain','blockchain','shield'],['Assistance','profile','user'],
+    ['Présentation','presentation','arrow-right'],
   ];
   svcItems.forEach(([l,v,ic]) => {
     const f = document.createElement('div'); f.className='feat';
     f.innerHTML = `<div class="ic">${icon(ic)}</div><h4>${l}</h4>`;
-    f.addEventListener('click', () => view(v)); f.style.cursor='pointer';
+    f.style.cursor='pointer';
+    if (v === 'presentation') {
+      f.addEventListener('click', () => window.open('/presentation/', '_blank'));
+    } else {
+      f.addEventListener('click', () => view(v));
+    }
     svcGrid.appendChild(f);
   });
   svc.appendChild(svcGrid); main.appendChild(svc);

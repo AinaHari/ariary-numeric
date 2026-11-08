@@ -1,0 +1,41 @@
+<div class="scene" id="scene-09" data-scene="09-securite">
+  <div class="scene-content">
+    <h2 style="font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 8px;">Sécurité & Protection</h2>
+    <p style="font-size: 14px; color: var(--muted); margin-bottom: 32px;">Vos données et vos opérations sont protégées</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; max-width: 900px; margin: 0 auto;">
+      <div class="scene-card" style="text-align: center; padding: 24px;">
+        <div style="font-size: 40px; margin-bottom: 12px;" class="animate-shieldPulse">🛡️</div>
+        <h4 style="font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px;">Protection du compte</h4>
+        <p style="font-size: 11px; color: var(--muted);">Mots de passe hashés (Django). Limitation des tentatives de connexion. Verrouillage automatique après 5 échecs.</p>
+      </div>
+      <div class="scene-card" style="text-align: center; padding: 24px;">
+        <div style="font-size: 40px; margin-bottom: 12px;">🔐</div>
+        <h4 style="font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px;">Transactions atomiques</h4>
+        <p style="font-size: 11px; color: var(--muted);">Débit et crédit dans une transaction de base de données. Empêche les doubles débits et les incohérences.</p>
+      </div>
+      <div class="scene-card" style="text-align: center; padding: 24px;">
+        <div style="font-size: 40px; margin-bottom: 12px;">📋</div>
+        <h4 style="font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px;">Journal d'audit</h4>
+        <p style="font-size: 11px; color: var(--muted);">Chaque opération importante est enregistrée avec horodatage, acteur et adresse IP.</p>
+      </div>
+      <div class="scene-card" style="text-align: center; padding: 24px;">
+        <div style="font-size: 40px; margin-bottom: 12px;">🔑</div>
+        <h4 style="font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px;">Permissions serveur</h4>
+        <p style="font-size: 11px; color: var(--muted);">Toutes les vérifications d'accès sont effectuées côté serveur. Le client mobile ne modifie jamais directement les données.</p>
+      </div>
+      <div class="scene-card" style="text-align: center; padding: 24px;">
+        <div style="font-size: 40px; margin-bottom: 12px;">📁</div>
+        <h4 style="font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px;">Documents protégés</h4>
+        <p style="font-size: 11px; color: var(--muted);">Les documents douaniers et logistiques sont accessibles uniquement aux propriétaires autorisés.</p>
+      </div>
+      <div class="scene-card" style="text-align: center; padding: 24px;">
+        <div style="font-size: 40px; margin-bottom: 12px;">🔗</div>
+        <h4 style="font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px;">Idempotence</h4>
+        <p style="font-size: 11px; color: var(--muted);">Les clés d'idempotence empêchent les doubles transactions. Chaque clé est scopée à son propriétaire.</p>
+      </div>
+    </div>
+    <div style="text-align: center; margin-top: 24px; color: var(--muted); font-size: 11px; max-width: 600px; margin-left: auto; margin-right: auto;">
+      <p>Aucune sécurité absolue n'est garantie. Ariary Numeric est une application de démonstration. Les paiements réels nécessitent des partenariats et des audits supplémentaires.</p>
+    </div>
+  </div>
+</div>

@@ -8,6 +8,7 @@ from . import views as config_views
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="index.html"), name="index"),
+    path("presentation/", config_views.presentation, name="presentation"),
     path("healthz/", config_views.healthz, name="healthz"),
     path("api/", config_views.api_index, name="api-index"),
     path("api/v1/", config_views.api_index, name="api-index-v1"),

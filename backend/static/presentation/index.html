@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ariary Numeric — Présentation</title>
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/subtitles.css">
+<style>
+  /* Presentation-specific styles */
+  .presentation-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  .scene {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+  }
+
+  .scene.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+  }
+
+  .scene-content {
+    max-width: 1200px;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Controls bar */
+  .controls-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(11, 14, 17, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--bg-4);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1000;
+  }
+
+  .controls-bar button {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .controls-bar button:hover {
+    background: var(--bg-4);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .controls-bar .progress-container {
+    flex: 1;
+    height: 4px;
+    background: var(--bg-4);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 0 12px;
+  }
+
+  .controls-bar .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.1s linear;
+    border-radius: 2px;
+  }
+
+  .controls-bar .time-display {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+    min-width: 80px;
+  }
+
+  .controls-bar .volume-control {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .controls-bar .volume-control input {
+    width: 60px;
+    accent-color: var(--accent);
+  }
+
+  /* Cursor */
+  #cursor {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    opacity: 0;
+  }
+
+  #cursor.clicking {
+    transform: scale(0.8);
+  }
+
+  /* Scene transition overlay */
+  #scene-transition {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: var(--bg);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+    transition: opacity 0.4s ease;
+  }
+
+  #scene-transition.active {
+    opacity: 1;
+  }
+
+  /* Subtitle container */
+  #subtitle-container {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 80%;
+    text-align: center;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  .subtitle {
+    background: rgba(0, 0, 0, 0.8);
+    color: #FFFFFF;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(10px);
+    display: inline-block;
+    max-width: 100%;
+    word-wrap: break-word;
+  }
+
+  .subtitle.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Logo animation */
+  .logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .logo-mark {
+    width: 120px;
+    height: 120px;
+    background: var(--accent);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 60px rgba(25, 184, 121, 0.3);
+    opacity: 0;
+    transform: scale(0.5);
+    animation: logoAppear 1.5s ease forwards;
+  }
+
+  .logo-mark svg {
+    width: 60px;
+    height: 60px;
+    stroke: #000;
+  }
+
+  @keyframes logoAppear {
+    0% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  .logo-text {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--text);
+    opacity: 0;
+    animation: fadeInUp 1s ease 0.5s forwards;
+  }
+
+  .tagline {
+    font-size: 20px;
+    color: var(--muted);
+    opacity: 0;
+    animation: fadeInUp 1s ease 1s forwards;
+  }
+
+  /* Phone mockup */
+  .phone-mockup {
+    width: 280px;
+    height: 560px;
+    background: var(--bg-3);
+    border: 2px solid var(--bg-4);
+    border-radius: 32px;
+    padding: 16px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    background: var(--bg-2);
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .phone-notch {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 20px;
+    background: var(--bg);
+    border-radius: 0 0 12px 12px;
+    z-index: 10;
+  }
+
+  /* Card styles for scenes */
+  .scene-card {
+    background: var(--bg-3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 8px;
+  }
+
+  .scene-card-light {
+    background: var(--white);
+    border: 1px solid #E3E8EE;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 8px;
+    color: #1A1F36;
+  }
+
+  /* Button styles for scenes */
+  .scene-btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+  }
+
+  .scene-btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .scene-btn-secondary {
+    background: var(--bg-4);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .scene-btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+
+  /* Badge */
+  .scene-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .scene-badge-success { background: rgba(14,203,129,.15); color: var(--green); }
+  .scene-badge-info { background: rgba(30,128,255,.15); color: var(--blue); }
+  .scene-badge-warn { background: rgba(240,185,11,.15); color: var(--accent); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .phone-mockup { width: 240px; height: 480px; }
+    h1 { font-size: 36px; }
+    h2 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="presentation-container" id="presentation">
+  <!-- Scene transition overlay -->
+  <div id="scene-transition" class="scene-transition"></div>
+
+  <!-- Cursor -->
+  <div id="cursor" class="cursor">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 4L10.5 20L13 13L20 10.5L4 4Z" fill="white" stroke="#000" stroke-width="1.5"/>
+    </svg>
+  </div>
+
+  <!-- Subtitle container -->
+  <div id="subtitle-container" class="subtitle-container">
+    <div id="subtitle" class="subtitle"></div>
+  </div>
+
+  <!-- Scenes will be loaded here -->
+  <div id="scenes-container"></div>
+</div>
+
+<!-- Controls bar -->
+<div class="controls-bar">
+  <button id="play-btn">▶ Play</button>
+  <button id="pause-btn" style="display:none;">⏸ Pause</button>
+  <button id="restart-btn">⟲ Restart</button>
+  <div class="progress-container">
+    <div id="progress-bar" class="progress-bar"></div>
+  </div>
+  <span id="time-display" class="time-display">0:00 / 0:00</span>
+  <div class="volume-control">
+    <span>🔊</span>
+    <input type="range" id="voice-volume" min="0" max="100" value="100">
+  </div>
+  <div class="volume-control">
+    <span>🎵</span>
+    <input type="range" id="music-volume" min="0" max="100" value="30">
+  </div>
+  <button id="mute-btn">🔊</button>
+  <button id="subtitle-btn">CC</button>
+  <button id="fullscreen-btn">⛶</button>
+</div>
+
+<script src="js/timeline.js"></script>
+<script src="js/cursor.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/subtitles.js"></script>
+<script src="js/player.js"></script>
+
+<script>
+// Load scenes dynamically
+const sceneFiles = [
+  'scenes/01-introduction.html',
+  'scenes/02-accueil.html',
+  'scenes/03-inscription.html',
+  'scenes/04-portefeuille.html',
+  'scenes/05-transfert.html',
+  'scenes/06-qr-code.html',
+  'scenes/07-transit.html',
+  'scenes/08-tracabilite.html',
+  'scenes/09-securite.html',
+  'scenes/10-conclusion.html'
+];
+
+async function loadScenes() {
+  const container = document.getElementById('scenes-container');
+  for (const file of sceneFiles) {
+    try {
+      const response = await fetch(file);
+      const html = await response.text();
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = html;
+      const scene = wrapper.firstElementChild;
+      if (scene) {
+        container.appendChild(scene);
+      }
+    } catch (e) {
+      console.error('Failed to load scene:', file, e);
+    }
+  }
+}
+
+// Initialize player after scenes are loaded
+loadScenes().then(() => {
+  if (window.player) {
+    window.player.init();
+  }
+});
+</script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 """Vues utilitaires du projet (page d'accueil API)."""
+from django.conf import settings
 from django.http import JsonResponse
 
 ENDPOINTS = {
@@ -24,7 +25,22 @@ ENDPOINTS = {
 }
 
 
+def presentation(request):
+    from django.http import FileResponse
+    import os
+    path = os.path.join(settings.BASE_DIR, 'static', 'presentation', 'index.html')
+    return FileResponse(open(path, 'rb'), content_type='text/html')
+
 def healthz(request):
+    from django.db import connection
+    try:
+        with connection.cursor() as c:
+            c.execute("SELECT 1")
+        db_ok = True
+    except Exception:
+        db_ok = False
+    status_code = 200 if db_ok else 503
+    return JsonResponse({"status": "ok" if db_ok else "degraded", "database": db_ok}, status=status_code)
     from django.db import connection
     try:
         with connection.cursor() as c:

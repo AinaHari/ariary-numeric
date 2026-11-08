@@ -1,0 +1,62 @@
+/* Subtitles styles for Ariary Numeric Presentation */
+
+.subtitle-container {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 85%;
+  text-align: center;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.subtitle {
+  background: rgba(0, 0, 0, 0.8);
+  color: #FFFFFF;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateY(10px);
+  display: inline-block;
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.subtitle.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.subtitle .highlight {
+  color: #19B879;
+  font-weight: 600;
+}
+
+/* Responsive subtitles */
+@media (max-width: 768px) {
+  .subtitle {
+    font-size: 14px;
+    padding: 8px 16px;
+    max-width: 90%;
+  }
+  .subtitle-container {
+    bottom: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .subtitle {
+    font-size: 12px;
+    padding: 6px 12px;
+    max-width: 95%;
+  }
+  .subtitle-container {
+    bottom: 40px;
+  }
+}
