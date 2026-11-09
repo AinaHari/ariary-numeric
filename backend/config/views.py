@@ -31,7 +31,34 @@ def presentation(request):
     path = os.path.join(settings.BASE_DIR, 'static', 'presentation', 'index.html')
     return FileResponse(open(path, 'rb'), content_type='text/html')
 
+def serve_static_file(request, filename):
+    from django.http import FileResponse
+    import os
+    content_types = {
+        'manifest.json': 'application/manifest+json',
+        'sw.js': 'application/javascript',
+        'robots.txt': 'text/plain',
+        'sitemap.xml': 'application/xml',
+    }
+    path = os.path.join(settings.BASE_DIR, '..', 'public', filename)
+    if not os.path.exists(path):
+        path = os.path.join(settings.BASE_DIR, 'static', filename)
+    if not os.path.exists(path):
+        from django.http import Http404
+        raise Http404
+    return FileResponse(open(path, 'rb'), content_type=content_types.get(filename, 'application/octet-stream'))
+
+
 def healthz(request):
+    from django.db import connection
+    try:
+        with connection.cursor() as c:
+            c.execute("SELECT 1")
+        db_ok = True
+    except Exception:
+        db_ok = False
+    status_code = 200 if db_ok else 503
+    return JsonResponse({"status": "ok" if db_ok else "degraded", "database": db_ok}, status=status_code)
     from django.db import connection
     try:
         with connection.cursor() as c:

@@ -3,8 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Ariary Numeric — Portefeuille numérique de démonstration pour Madagascar. Transferts, suivi logistique, douane, blockchain. Aucun argent réel.">
+<meta name="keywords" content="ariary, numeric, portefeuille, Madagascar, fintech, transfert, blockchain, douane, logistique">
+<meta name="author" content="Ariary Numeric">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="Ariary Numeric — Madagascar connecté au monde">
+<meta property="og:description" content="Plateforme fintech de démonstration : portefeuille numérique, transferts, suivi logistique, traçabilité blockchain.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ariary-numeric-alpha.vercel.app">
+<meta property="og:image" content="https://ariary-numeric-alpha.vercel.app/static/img/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ariary Numeric — Madagascar connecté au monde">
+<meta name="twitter:description" content="Plateforme fintech de démonstration pour Madagascar.">
+<link rel="manifest" href="/manifest.json">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
-<title>Ariary Numeric — Client web</title>
+<title>Ariary Numeric — Madagascar connecté au monde</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
@@ -340,7 +353,11 @@ td.text { font-family: var(--font); }
 /* ---------- Selection ---------- */
 ::selection { background: rgba(252,213,53,.2); color: var(--accent-light); }
 
-/* ---------- Utility ---------- */
+/* ---------- Loading spinner ---------- */
+.spinner { display:inline-block; width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .6s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.skeleton { background:linear-gradient(90deg,var(--bg-3) 25%,var(--bg-4) 50%,var(--bg-3) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:var(--r-sm); }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 .text-green { color: var(--green); }
 .text-red { color: var(--red); }
 .text-accent { color: var(--accent); }
@@ -388,6 +405,15 @@ td.text { font-family: var(--font); }
 <main id="main"></main>
 
 <div id="toast"></div>
+
+<!-- Cookie consent -->
+<div id="cookieBanner" style="position:fixed;bottom:0;left:0;right:0;background:var(--bg-3);border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:300;flex-wrap:wrap">
+  <p style="margin:0;font-size:12px;color:var(--muted)">🍪 Ce site utilise des cookies essentiels pour le fonctionnement de l'application. <a href="#" class="link" style="font-size:12px">En savoir plus</a></p>
+  <button class="primary" style="padding:6px 16px;font-size:12px" onclick="document.getElementById('cookieBanner').style.display='none';localStorage.setItem('cookies_accepted','1')">Accepter</button>
+</div>
+<script>
+if (localStorage.getItem('cookies_accepted')) document.getElementById('cookieBanner').style.display='none';
+</script>
 
 <script>/**
  * Skipped minification because the original files appears to be already minified.
@@ -1586,6 +1612,11 @@ window.addEventListener('popstate', (e) => {
   else if (token && user) view('dashboard');
   else viewLanding();
 });
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
 </script>
 </body>
 </html>

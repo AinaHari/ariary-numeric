@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /healthz/
+
+Sitemap: https://ariary-numeric-alpha.vercel.app/sitemap.xml
